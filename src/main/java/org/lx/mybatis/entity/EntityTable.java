@@ -1,6 +1,5 @@
 package org.lx.mybatis.entity;
 
-import lx.mybatis.mapper.util.StringUtil;
 import org.apache.ibatis.mapping.ResultFlag;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
@@ -8,6 +7,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandler;
 import org.lx.mybatis.MapperException;
+import org.lx.mybatis.util.StringUtil;
 
 import javax.persistence.Table;
 import java.lang.reflect.Constructor;
@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 
 /**
  * 数据库表
- *
  */
 public class EntityTable {
     public static final Pattern DELIMITER = Pattern.compile("^[`\\[\"]?(.*?)[`\\]\"]?$");

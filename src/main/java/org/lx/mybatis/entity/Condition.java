@@ -1,7 +1,6 @@
 package org.lx.mybatis.entity;
 
 import lx.mybatis.mapper.mapperhelper.EntityHelper;
-import org.lx.mybatis.MapperException;
 
 import java.util.*;
 
@@ -61,7 +60,7 @@ public class Condition {
                 if (propertyMap.containsKey(property)) {
                     this.excludeColumns.add(propertyMap.get(property).getColumn());
                 } else {
-                   // throw new MapperException("类 " + entityClass.getSimpleName() + " 不包含属性 \'" + property + "\'，或该属性被@Transient注释！");
+                    // throw new MapperException("类 " + entityClass.getSimpleName() + " 不包含属性 \'" + property + "\'，或该属性被@Transient注释！");
                 }
             }
         }
@@ -83,7 +82,7 @@ public class Condition {
                 if (propertyMap.containsKey(property)) {
                     this.selectColumns.add(propertyMap.get(property).getColumn());
                 } else {
-                   // throw new MapperException("类 " + entityClass.getSimpleName() + " 不包含属性 \'" + property + "\'，或该属性被@Transient注释！");
+                    // throw new MapperException("类 " + entityClass.getSimpleName() + " 不包含属性 \'" + property + "\'，或该属性被@Transient注释！");
                 }
             }
         }
