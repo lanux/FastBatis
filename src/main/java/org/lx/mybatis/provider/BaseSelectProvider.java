@@ -1,10 +1,10 @@
 package org.lx.mybatis.provider;
 
-import lx.mybatis.mapper.entity.EntityColumn;
-import lx.mybatis.mapper.entity.EntityTable;
-import lx.mybatis.mapper.entity.Example;
 import lx.mybatis.mapper.mapperhelper.EntityHelper;
 import org.apache.ibatis.jdbc.SQL;
+import org.lx.mybatis.entity.Condition;
+import org.lx.mybatis.entity.EntityColumn;
+import org.lx.mybatis.entity.EntityTable;
 import org.lx.mybatis.entity.Selectable;
 import org.lx.mybatis.helper.ProviderSqlHelper;
 
@@ -77,15 +77,15 @@ public class BaseSelectProvider {
     /**
      * 查询全部结果
      *
-     * @param example
+     * @param condition
      * @return
      */
-    public String selectAll(Example example) {
-        EntityTable entityTable = EntityHelper.getEntityTable(example.getEntityClass());
+    public String selectAll(Condition condition) {
+        EntityTable entityTable = EntityHelper.getEntityTable(condition.getEntityClass());
         return new SQL() {{
             SELECT(ProviderSqlHelper.getAllColumns(entityTable));
             FROM(entityTable.getName());
-            WHERE(ProviderSqlHelper.getEqualsHolder(entityTable.getEntityClassPKColumns()));
+            WHERE(ProviderSqlHelper.whereClause(condition));
         }}.toString();
     }
 }

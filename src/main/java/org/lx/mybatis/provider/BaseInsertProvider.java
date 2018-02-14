@@ -1,8 +1,8 @@
 package org.lx.mybatis.provider;
 
-import lx.mybatis.mapper.entity.EntityColumn;
-import lx.mybatis.mapper.entity.EntityTable;
 import org.apache.ibatis.jdbc.SQL;
+import org.lx.mybatis.entity.EntityColumn;
+import org.lx.mybatis.entity.EntityTable;
 import org.lx.mybatis.entity.Selectable;
 import org.lx.mybatis.helper.EntityHelper;
 

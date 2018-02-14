@@ -1,7 +1,5 @@
 package org.lx.mybatis.entity;
 
-import lx.mybatis.mapper.entity.EntityColumn;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
