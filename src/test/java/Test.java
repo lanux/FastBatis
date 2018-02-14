@@ -12,6 +12,7 @@ import java.io.InputStream;
 public class Test extends BaseDataTest{
 
     public static void main(String[] args) throws Exception {
+        System.out.println("BlogMapper.class.getGenericSuperclass() = " + BlogMapper.class.getGenericInterfaces());
         String resource = "mybatis-config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);

@@ -2,10 +2,10 @@ package org.lx.mybatis.entity;
 
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
+import org.lx.mybatis.util.StringUtil;
 
 /**
  * 数据库表对应的列
- *
  */
 public class EntityColumn {
     private EntityTable table;

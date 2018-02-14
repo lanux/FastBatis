@@ -1,6 +1,6 @@
 package org.lx.mybatis.entity;
 
-import lx.mybatis.mapper.mapperhelper.EntityHelper;
+import org.lx.mybatis.helper.EntityHelper;
 
 import java.util.*;
 
