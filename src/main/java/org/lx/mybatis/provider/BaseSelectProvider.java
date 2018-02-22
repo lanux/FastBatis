@@ -1,10 +1,10 @@
 package org.lx.mybatis.provider;
 
+import org.apache.ibatis.jdbc.AbstractSQL;
 import org.apache.ibatis.jdbc.SQL;
 import org.lx.mybatis.entity.Condition;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
-import org.lx.mybatis.entity.Selectable;
 import org.lx.mybatis.helper.EntityHelper;
 import org.lx.mybatis.helper.ProviderSqlHelper;
 
@@ -18,12 +18,12 @@ public class BaseSelectProvider {
      * @param object
      * @return
      */
-    public String selectOne(Selectable object) {
+    public String selectOne(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
             SELECT(ProviderSqlHelper.getAllColumns(entityTable));
             FROM(entityTable.getName());
-            List<EntityColumn> select = object.select(entityTable.getPropertyMap());
+            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
             WHERE(ProviderSqlHelper.getEqualsHolder(select));
         }}.toString();
     }
@@ -34,14 +34,23 @@ public class BaseSelectProvider {
      * @param object
      * @return
      */
-    public String select(Selectable object) {
+    public String select(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
             SELECT(ProviderSqlHelper.getAllColumns(entityTable));
             FROM(entityTable.getName());
-            List<EntityColumn> select = object.select(entityTable.getPropertyMap());
+            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
             WHERE(ProviderSqlHelper.getEqualsHolder(select));
         }}.toString();
+    }
+
+    public static String select(Class clazz) {
+        EntityTable entityTable = EntityHelper.getEntityTable(clazz);
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT " + ProviderSqlHelper.getAllColumns(entityTable) + " FROM \n");
+        sb.append(entityTable.getName() + " \n");
+        sb.append(ProviderSqlHelper.whereAllIfColumns(clazz));
+        return sb.toString();
     }
 
     /**
@@ -49,7 +58,7 @@ public class BaseSelectProvider {
      *
      * @param object
      */
-    public String selectByPrimaryKey(Selectable object) {
+    public String selectByPrimaryKey(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
             SELECT(ProviderSqlHelper.getAllColumns(entityTable));
@@ -64,7 +73,7 @@ public class BaseSelectProvider {
      * @param object
      * @return
      */
-    public String selectCount(Selectable object) {
+    public String selectCount(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
             SELECT("COUNT(1)");

@@ -14,10 +14,11 @@ public class EntityColumn {
     private Class<?> javaType;
     private JdbcType jdbcType;
     private Class<? extends TypeHandler<?>> typeHandler;
-    private String sequenceName;
     private boolean id = false;
     private boolean blob = false;
-    private String generator;
+    private boolean nullable = true;
+    private boolean insertable = true;
+    private boolean updatable = true;
 
     public EntityColumn() {
     }
@@ -133,14 +134,6 @@ public class EntityColumn {
         return getColumnHolder(null);
     }
 
-    public String getGenerator() {
-        return generator;
-    }
-
-    public void setGenerator(String generator) {
-        this.generator = generator;
-    }
-
     public Class<?> getJavaType() {
         return javaType;
     }
@@ -163,14 +156,6 @@ public class EntityColumn {
 
     public void setProperty(String property) {
         this.property = property;
-    }
-
-    public String getSequenceName() {
-        return sequenceName;
-    }
-
-    public void setSequenceName(String sequenceName) {
-        this.sequenceName = sequenceName;
     }
 
     public EntityTable getTable() {
@@ -203,5 +188,29 @@ public class EntityColumn {
 
     public void setBlob(boolean blob) {
         this.blob = blob;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    public boolean isInsertable() {
+        return insertable;
+    }
+
+    public void setInsertable(boolean insertable) {
+        this.insertable = insertable;
+    }
+
+    public boolean isUpdatable() {
+        return updatable;
+    }
+
+    public void setUpdatable(boolean updatable) {
+        this.updatable = updatable;
     }
 }

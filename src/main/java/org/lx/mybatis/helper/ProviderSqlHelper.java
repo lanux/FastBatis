@@ -1,6 +1,7 @@
 package org.lx.mybatis.helper;
 
 import org.lx.mybatis.entity.*;
+import org.lx.mybatis.util.StringUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +44,7 @@ public class ProviderSqlHelper {
      * @return
      */
     public static String getAllColumns(EntityTable table) {
-        Set<EntityColumn> columnList = table.getEntityClassColumns();
+        List<EntityColumn> columnList = table.getEntityClassColumns();
         return getColumns(columnList);
     }
 
@@ -104,6 +105,108 @@ public class ProviderSqlHelper {
         }
         return sb.toString();
     }
+
+    /**
+     * 判断自动!=null的条件结构
+     *
+     * @param entityName
+     * @param column
+     * @param contents
+     * @return
+     */
+    public static String getIfNotNull(String entityName, EntityColumn column, String contents) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("<if test=\"");
+        if (StringUtil.isNotEmpty(entityName)) {
+            sql.append(entityName).append(".");
+        }
+        sql.append(column.getProperty()).append(" != null");
+        sql.append("\">\n");
+        sql.append(contents);
+        sql.append("\n</if>\n");
+        return sql.toString();
+    }
+
+    /**
+     * @param entityName
+     * @param column
+     * @param contents
+     * @return
+     */
+    public static String getIfNotEmpty(String entityName, EntityColumn column, String contents) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("<if test=\"");
+        if (StringUtil.isNotEmpty(entityName)) {
+            sql.append(entityName).append(".");
+        }
+        sql.append(column.getProperty()).append(" != null");
+        if (column.getJavaType().equals(String.class)) {
+            sql.append(" and ");
+            if (StringUtil.isNotEmpty(entityName)) {
+                sql.append(entityName).append(".");
+            }
+            sql.append(column.getProperty()).append(" != '' ");
+        }
+        sql.append("\">");
+        sql.append(contents);
+        sql.append("</if>");
+        return sql.toString();
+    }
+
+    /**
+     * where所有列的条件，会判断是否!=null<br/>
+     * <where>
+     * <if test="state != null">
+     * AND state = #{state}
+     * </if><p/>
+     * <if test="title != null">
+     * AND title = #{title}
+     * </if><p/>
+     * <if test="author != null and author.name != null">
+     * AND author_name like #{author.name}
+     * </if>
+     * </where>
+     *
+     * @param entityClass
+     * @return
+     */
+    public static String whereAllIfColumns(Class<?> entityClass) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("<where>\n");
+        List<EntityColumn> columns = EntityHelper.getColumns(entityClass);
+        for (EntityColumn column : columns) {
+            sql.append(getIfNotNull(null, column, "AND " + column.getColumnEqualsHolder()));
+        }
+        sql.append("</where>\n");
+        return sql.toString();
+    }
+
+    /**
+     * update set列
+     *
+     * @param entityClass
+     * @param entityName  实体映射名
+     * @param notNull     判断!=null
+     * @param notEmpty    判断!=null 且 String类型!=''
+     * @return
+     */
+    public static String updateSetColumns(Class<?> entityClass, String entityName, boolean notNull, boolean notEmpty) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("<set>");
+        List<EntityColumn> columns = EntityHelper.getColumns(entityClass);
+        columns.stream().filter(column -> !column.isId() && column.isUpdatable()).forEach(column -> {
+            if (notEmpty) {
+                sql.append(getIfNotEmpty(entityName, column, column.getColumnEqualsHolder(entityName) + ","));
+            } else if (notNull) {
+                sql.append(getIfNotNull(entityName, column, column.getColumnEqualsHolder(entityName) + ","));
+            } else {
+                sql.append(column.getColumnEqualsHolder(entityName) + ",");
+            }
+        });
+        sql.append("</set>");
+        return sql.toString();
+    }
+
 
     public static String xmlWhereClause(Condition condition) {
         return "<if test=\"_parameter != null\">" +

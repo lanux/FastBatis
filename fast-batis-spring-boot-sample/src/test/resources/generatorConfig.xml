@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <context id="MysqlContext" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+        <property name="javaFileEncoding" value="UTF-8"/>
+
+        <plugin type="org.lx.TkMapperPlugin">
+            <property name="mappers" value="org.lx.mybatis.mapper.base.CrudMapper,org.lx.mybatis.mapper.selective.CrudSelectiveMapper"/>
+        </plugin>
+
+        <plugin type="org.lx.LombokPlugin">
+        </plugin>
+
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+
+
+        <commentGenerator type="org.lx.CustomCommentGenerator">
+            <!--<property name="suppressAllComments" value="true"/>-->
+        </commentGenerator>
+
+        <jdbcConnection driverClass="org.h2.Driver"
+                        connectionURL="jdbc:h2:mem:db_users;MODE=MYSQL;"
+                        userId="root"
+                        password="root">
+            <property name="remarksReporting" value="true"/>
+            <property name="useInformationSchema" value="true"/>
+        </jdbcConnection>
+
+        <javaModelGenerator targetPackage="org.lx.model" targetProject="src\main\java">
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="mapper" targetProject="src\main\resources"/>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="org.lx.mapper" targetProject="src\main\java"/>
+
+        <table tableName="t_user">
+        </table>
+    </context>
+</generatorConfiguration>

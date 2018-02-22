@@ -3,7 +3,6 @@ package org.lx.mybatis.provider;
 import org.apache.ibatis.jdbc.SQL;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
-import org.lx.mybatis.entity.Selectable;
 import org.lx.mybatis.helper.EntityHelper;
 import org.lx.mybatis.helper.ProviderSqlHelper;
 
@@ -24,11 +23,11 @@ public class BaseInsertProvider {
         }}.toString();
     }
 
-    public String insertSelective(Selectable object) {
+    public String insertSelective(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
             INSERT_INTO(entityTable.getName());
-            List<EntityColumn> select = object.select(entityTable.getEntityClassColumns());
+            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(),object);
             Collection<EntityColumn> list = new ArrayList<>(select);
             String columns = select.stream().map(EntityColumn::getColumn).collect(Collectors.joining(","));
 //            String values = select.stream().map(EntityColumn::getColumnHolder).collect(Collectors.joining(","));

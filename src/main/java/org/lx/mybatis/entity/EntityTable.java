@@ -29,9 +29,9 @@ public class EntityTable {
     private String orderByClause;
     private String baseSelect;
     //实体类 => 全部列属性
-    private Set<EntityColumn> entityClassColumns;
+    private List<EntityColumn> entityClassColumns;
     //实体类 => 主键信息
-    private Set<EntityColumn> entityClassPKColumns;
+    private List<EntityColumn> entityClassPKColumns;
     //useGenerator包含多列的时候需要用到
     private List<String> keyProperties;
     private List<String> keyColumns;
@@ -145,19 +145,19 @@ public class EntityTable {
         return entityClass;
     }
 
-    public Set<EntityColumn> getEntityClassColumns() {
+    public List<EntityColumn> getEntityClassColumns() {
         return entityClassColumns;
     }
 
-    public void setEntityClassColumns(Set<EntityColumn> entityClassColumns) {
+    public void setEntityClassColumns(List<EntityColumn> entityClassColumns) {
         this.entityClassColumns = entityClassColumns;
     }
 
-    public Set<EntityColumn> getEntityClassPKColumns() {
+    public List<EntityColumn> getEntityClassPKColumns() {
         return entityClassPKColumns;
     }
 
-    public void setEntityClassPKColumns(Set<EntityColumn> entityClassPKColumns) {
+    public void setEntityClassPKColumns(List<EntityColumn> entityClassPKColumns) {
         this.entityClassPKColumns = entityClassPKColumns;
     }
 

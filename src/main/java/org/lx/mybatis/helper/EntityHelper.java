@@ -34,7 +34,9 @@ public class EntityHelper {
     public static EntityTable getEntityTable(Class<?> entityClass) {
         EntityTable entityTable = entityTableMap.get(entityClass);
         if (entityTable == null) {
-            throw new MapperException("无法获取实体类" + entityClass.getCanonicalName() + "对应的表名!");
+            synchronized (entityTableMap) {
+                entityTableMap.put(entityClass,entityTable = resolveEntity(entityClass));
+            }
         }
         return entityTable;
     }
@@ -45,7 +47,7 @@ public class EntityHelper {
      * @param entityClass
      * @return
      */
-    public static Set<EntityColumn> getColumns(Class<?> entityClass) {
+    public static List<EntityColumn> getColumns(Class<?> entityClass) {
         return getEntityTable(entityClass).getEntityClassColumns();
     }
 
@@ -55,7 +57,7 @@ public class EntityHelper {
      * @param entityClass
      * @return
      */
-    public static Set<EntityColumn> getPKColumns(Class<?> entityClass) {
+    public static List<EntityColumn> getPKColumns(Class<?> entityClass) {
         return getEntityTable(entityClass).getEntityClassPKColumns();
     }
 
@@ -70,7 +72,7 @@ public class EntityHelper {
         if (entityTable.getBaseSelect() != null) {
             return entityTable.getBaseSelect();
         }
-        Set<EntityColumn> columnList = getColumns(entityClass);
+        List<EntityColumn> columnList = getColumns(entityClass);
         StringBuilder selectBuilder = new StringBuilder();
         boolean skipAlias = Map.class.isAssignableFrom(entityClass);
         for (EntityColumn entityColumn : columnList) {
@@ -116,8 +118,8 @@ public class EntityHelper {
             //驼峰转下划线
             entityTable.setName(StringUtil.camelhumpToUnderline(entityClass.getSimpleName()));
         }
-        entityTable.setEntityClassColumns(new LinkedHashSet<EntityColumn>());
-        entityTable.setEntityClassPKColumns(new LinkedHashSet<EntityColumn>());
+        entityTable.setEntityClassColumns(new LinkedList<>());
+        entityTable.setEntityClassPKColumns(new LinkedList<>());
         //处理所有列
         for (Field field : entityClass.getDeclaredFields()) {
             processField(entityTable, field);
@@ -127,12 +129,13 @@ public class EntityHelper {
             entityTable.setEntityClassPKColumns(entityTable.getEntityClassColumns());
         }
         entityTable.initPropertyMap();
+        entityTableMap.put(entityClass,entityTable);
         return entityTable;
     }
 
     protected static void processField(EntityTable entityTable, Field field) {
         //排除字段
-        if (Modifier.isTransient(field.getModifiers()) || field.isAnnotationPresent(Transient.class) || field.isAnnotationPresent(javax.persistence.Transient.class)) {
+        if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers()) || field.isAnnotationPresent(Transient.class) || field.isAnnotationPresent(javax.persistence.Transient.class)) {
             return;
         }
         EntityColumn entityColumn = new EntityColumn(entityTable);

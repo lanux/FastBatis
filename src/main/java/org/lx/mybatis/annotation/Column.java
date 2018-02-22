@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
 public @interface Column {
     String name() default "";
 
-    boolean unique() default false;
+    boolean unique() default false;// 是否唯一
 
-    boolean nullable() default true;
+    boolean nullable() default true;//是否允许为空
 
     String columnDefinition() default "";
 
@@ -26,7 +26,9 @@ public @interface Column {
 
     int scale() default 0;
 
-    boolean isBlob() default false;
+    boolean isBlob() default false;// 是否blob字段
+
+    String delimiter() default "";// 分隔符
 
     JdbcType jdbcType() default JdbcType.UNDEFINED;
 
