@@ -16,7 +16,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
- * @MapperScan(basePackages = "",factoryBean = LxMapperFactoryBean.class)
+ * use like @MapperScan(basePackages = "org.lx.mapper",factoryBean = LxMapperFactoryBean.class)
  */
 public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
 
@@ -36,7 +36,6 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
             if (entityClass != null) {
                 EntityHelper.resolveEntity(entityClass);
                 Configuration configuration = this.getSqlSession().getConfiguration();
-//                Type[] types = super.getMapperInterface().getGenericInterfaces();
                 Method[] methods = mapperInterface.getMethods();
                 for (Method method : methods) {
                     addStatement(mapperInterface, entityClass, method.getName(), configuration);
@@ -65,9 +64,7 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
         if (types != null) {
             for (Type genericSuperclass : types) {
                 if (genericSuperclass instanceof ParameterizedType) {
-                    //参数化类型
                     ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
-                    //返回表示此类型实际类型参数的 Type 对象的数组
                     Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
                     return (Class<T>) actualTypeArguments[0];
                 }
@@ -77,18 +74,21 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
     }
 
     private synchronized void addStatement(Class<?> mapperClass, Class<?> entityClass, String methodName, Configuration configuration) {
-        // 定义子mapper的statement1
-        String baseStatementId = mapperClass.getName() + "." + methodName;
-        if (configuration.hasStatement(baseStatementId)) {
+        String statementId = mapperClass.getName() + "." + methodName;
+        if (configuration.hasStatement(statementId)) {
             return;
         }
         if (methodName.equals("selectSelective")) {
-            LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
-            SqlSource script = languageDriver.createSqlSource(configuration,"<script>"+ BaseSelectProvider.select(entityClass) +"</script>", entityClass);
-            MappedStatement.Builder builder = new MappedStatement.Builder(configuration, baseStatementId, script, SqlCommandType.SELECT)
-                    .resultMaps(new ArrayList<>(configuration.getResultMaps()));
-            MappedStatement statement = builder.build();
-            configuration.addMappedStatement(statement);
+//            LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
+//            SqlSource script = languageDriver.createSqlSource(configuration, "<script>" + BaseSelectProvider.select(entityClass) + "</script>", entityClass);
+//            MappedStatement.Builder builder = new MappedStatement.Builder(configuration, statementId, script, SqlCommandType.SELECT)
+//                    .resultMaps(new ArrayList<>(configuration.getResultMaps()));
+//            MappedStatement statement = builder.build();
+//            configuration.addMappedStatement(statement);
+
+//            if (SqlCommandType.INSERT.equals(statement.getSqlCommandType()) && statement.get != null && statement.getResultSetType().isAssignableFrom(entityClass)) {
+//                keyGeneratorBuilder.build(statementBuilder, entityClass);
+//            }
         }
     }
 

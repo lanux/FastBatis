@@ -24,7 +24,7 @@
         </commentGenerator>
 
         <jdbcConnection driverClass="org.h2.Driver"
-                        connectionURL="jdbc:h2:mem:db_users;MODE=MYSQL;"
+                        connectionURL="jdbc:h2:mem:db_users;MODE=MYSQL;INIT=RUNSCRIPT FROM 'classpath:init_table.sql'  "
                         userId="root"
                         password="root">
             <property name="remarksReporting" value="true"/>
@@ -38,7 +38,7 @@
 
         <javaClientGenerator type="XMLMAPPER" targetPackage="org.lx.mapper" targetProject="src\main\java"/>
 
-        <table tableName="t_user">
+        <table tableName="sys_user">
         </table>
     </context>
 </generatorConfiguration>

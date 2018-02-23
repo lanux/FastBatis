@@ -5,7 +5,6 @@ import org.lx.mybatis.util.StringUtil;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProviderSqlHelper {
@@ -167,33 +166,40 @@ public class ProviderSqlHelper {
      * </if>
      * </where>
      *
-     * @param entityClass
+     * @param columns
      * @return
      */
-    public static String whereAllIfColumns(Class<?> entityClass) {
+    public static String whereAllIfColumns(String entityName, List<EntityColumn> columns) {
         StringBuilder sql = new StringBuilder();
         sql.append("<where>\n");
-        List<EntityColumn> columns = EntityHelper.getColumns(entityClass);
         for (EntityColumn column : columns) {
-            sql.append(getIfNotNull(null, column, "AND " + column.getColumnEqualsHolder()));
+            sql.append(getIfNotNull(entityName, column, "AND " + column.getColumnEqualsHolder()));
         }
         sql.append("</where>\n");
         return sql.toString();
     }
 
+    public static String getAllIfColumns(String entityName,Collection<EntityColumn> columnList) {
+        return columnList.stream().map(entityColumn -> getIfNotNull(null, entityColumn, entityColumn.getColumn())).collect(Collectors.joining(COLUMN_JOIN_DELIMITER));
+    }
+
+    public static String getAllIfColumnValueHolder(String entityName,Collection<EntityColumn> columnList) {
+        return columnList.stream().map(entityColumn -> getIfNotNull(entityName, entityColumn, entityColumn.getColumnHolder(entityName))).collect(Collectors.joining(COLUMN_JOIN_DELIMITER));
+    }
+
+
     /**
      * update set列
      *
-     * @param entityClass
-     * @param entityName  实体映射名
-     * @param notNull     判断!=null
-     * @param notEmpty    判断!=null 且 String类型!=''
+     * @param columns
+     * @param entityName 实体映射名
+     * @param notNull    判断!=null
+     * @param notEmpty   判断!=null 且 String类型!=''
      * @return
      */
-    public static String updateSetColumns(Class<?> entityClass, String entityName, boolean notNull, boolean notEmpty) {
+    public static String updateSetColumns(List<EntityColumn> columns, String entityName, boolean notNull, boolean notEmpty) {
         StringBuilder sql = new StringBuilder();
         sql.append("<set>");
-        List<EntityColumn> columns = EntityHelper.getColumns(entityClass);
         columns.stream().filter(column -> !column.isId() && column.isUpdatable()).forEach(column -> {
             if (notEmpty) {
                 sql.append(getIfNotEmpty(entityName, column, column.getColumnEqualsHolder(entityName) + ","));
@@ -204,6 +210,52 @@ public class ProviderSqlHelper {
             }
         });
         sql.append("</set>");
+        return sql.toString();
+    }
+
+    public static String fromTable(String tableName) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" FROM ");
+        sql.append(tableName);
+        sql.append(" ");
+        return sql.toString();
+    }
+
+    public static String updateTable(String tableName) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE ");
+        sql.append(tableName);
+        sql.append(" ");
+        return sql.toString();
+    }
+
+    public static String deleteFromTable(String tableName) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("DELETE FROM ");
+        sql.append(tableName);
+        sql.append(" ");
+        return sql.toString();
+    }
+
+    public static String insertIntoTable(String tableName) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ");
+        sql.append(tableName);
+        sql.append(" ");
+        return sql.toString();
+    }
+
+    public static String batchInsertValues(List<EntityColumn> columnList) {
+        StringBuilder sql = new StringBuilder(" VALUES ");
+        sql.append("<foreach collection=\"list\" item=\"record\" separator=\",\" >");
+        sql.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+        for (EntityColumn column : columnList) {
+            if (!column.isId() && column.isInsertable()) {
+                sql.append(column.getColumnHolder("record") + ",");
+            }
+        }
+        sql.append("</trim>");
+        sql.append("</foreach>");
         return sql.toString();
     }
 

@@ -18,7 +18,6 @@ public class BaseInsertProvider {
         return new SQL() {{
             INSERT_INTO(entityTable.getName());
             String columns = entityTable.getEntityClassColumns().stream().map(EntityColumn::getColumn).collect(Collectors.joining(","));
-//            String values = entityTable.getEntityClassColumns().stream().map(EntityColumn::getColumnHolder).collect(Collectors.joining(","));
             VALUES(columns, ProviderSqlHelper.getValuesHolder(entityTable.getEntityClassColumns()));
         }}.toString();
     }
@@ -30,7 +29,6 @@ public class BaseInsertProvider {
             List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(),object);
             Collection<EntityColumn> list = new ArrayList<>(select);
             String columns = select.stream().map(EntityColumn::getColumn).collect(Collectors.joining(","));
-//            String values = select.stream().map(EntityColumn::getColumnHolder).collect(Collectors.joining(","));
             VALUES(columns, ProviderSqlHelper.getValuesHolder(select));
         }}.toString();
     }

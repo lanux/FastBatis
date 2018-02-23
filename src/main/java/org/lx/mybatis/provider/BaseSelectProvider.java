@@ -44,14 +44,14 @@ public class BaseSelectProvider {
         }}.toString();
     }
 
-    public static String select(Class clazz) {
-        EntityTable entityTable = EntityHelper.getEntityTable(clazz);
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT " + ProviderSqlHelper.getAllColumns(entityTable) + " FROM \n");
-        sb.append(entityTable.getName() + " \n");
-        sb.append(ProviderSqlHelper.whereAllIfColumns(clazz));
-        return sb.toString();
-    }
+//    public String select(Class clazz) {
+//        EntityTable entityTable = EntityHelper.getEntityTable(clazz);
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("SELECT " + ProviderSqlHelper.getAllColumns(entityTable) + " FROM \n");
+//        sb.append(entityTable.getName() + " \n");
+//        sb.append(ProviderSqlHelper.whereAllIfColumns(clazz));
+//        return sb.toString();
+//    }
 
     /**
      * 根据主键进行查询
