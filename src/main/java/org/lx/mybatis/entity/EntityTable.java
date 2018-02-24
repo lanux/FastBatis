@@ -11,6 +11,7 @@ import org.lx.mybatis.util.StringUtil;
 
 import javax.persistence.Table;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

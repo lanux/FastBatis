@@ -1,6 +1,7 @@
 package org.lx.mybatis.mapper;
 
 import org.apache.ibatis.executor.ErrorContext;
+import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.mapper.MapperFactoryBean;
 

@@ -1,6 +1,13 @@
 package org.lx.mybatis.example;
 
-public class Blog {
+import org.lx.mybatis.entity.EntityColumn;
+import org.lx.mybatis.entity.Selectable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class Blog implements Selectable{
     private Long id;
     private String name;
     private String content;
@@ -27,5 +34,14 @@ public class Blog {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public List<EntityColumn> select(Map<String, EntityColumn> propertyMap) {
+        List<EntityColumn> list = new ArrayList<>();
+        if (this.id!=null){
+            list.add(propertyMap.get("id"));
+        }
+        return null;
     }
 }
