@@ -3,7 +3,7 @@ package org.lx.mybatis.dialect;
 public enum IdentityDialect {
     DB2("VALUES IDENTITY_VAL_LOCAL()"),
     MYSQL("SELECT LAST_INSERT_ID()"),
-    SQLSERVER("SELECT SCOPE_IDENTITY()"),
+    SQL_SERVER("SELECT SCOPE_IDENTITY()"),
     CLOUDSCAPE("VALUES IDENTITY_VAL_LOCAL()"),
     DERBY("VALUES IDENTITY_VAL_LOCAL()"),
     HSQLDB("CALL IDENTITY()"),
@@ -13,7 +13,7 @@ public enum IdentityDialect {
 
     private String identityRetrievalStatement;
 
-    private IdentityDialect(String identityRetrievalStatement) {
+    IdentityDialect(String identityRetrievalStatement) {
         this.identityRetrievalStatement = identityRetrievalStatement;
     }
 
@@ -24,7 +24,7 @@ public enum IdentityDialect {
         } else if ("MySQL".equalsIgnoreCase(database)) {
             returnValue = MYSQL;
         } else if ("SqlServer".equalsIgnoreCase(database)) {
-            returnValue = SQLSERVER;
+            returnValue = SQL_SERVER;
         } else if ("Cloudscape".equalsIgnoreCase(database)) {
             returnValue = CLOUDSCAPE;
         } else if ("Derby".equalsIgnoreCase(database)) {
