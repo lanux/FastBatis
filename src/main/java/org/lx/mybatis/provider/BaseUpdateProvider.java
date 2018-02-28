@@ -11,6 +11,7 @@ import java.util.List;
 
 public class BaseUpdateProvider {
 
+
     /**
      * 通过主键更新全部字段
      *
@@ -35,11 +36,11 @@ public class BaseUpdateProvider {
      * @param object
      * @return
      */
-    public String updateByPrimaryKeySelective(Selectable object) {
+    public String updateByPrimaryKeySelective(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
             UPDATE(entityTable.getName());
-            List<EntityColumn> select = object.select(entityTable.getPropertyMap());
+            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(),object);
             for (EntityColumn column : select) {
                 SET(column.getColumnEqualsHolder());
             }

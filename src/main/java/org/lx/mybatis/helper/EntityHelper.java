@@ -1,12 +1,16 @@
 package org.lx.mybatis.helper;
 
+import org.apache.ibatis.scripting.xmltags.ExpressionEvaluator;
 import org.lx.mybatis.MapperException;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class EntityHelper {
 
@@ -102,6 +106,15 @@ public class EntityHelper {
         }
         entityTable.setBaseSelect(selectBuilder.substring(0, selectBuilder.length() - 1));
         return entityTable.getBaseSelect();
+    }
+
+    public static List<EntityColumn> filterNotNull(Collection<EntityColumn> collection, Object object) {
+        ExpressionEvaluator evaluator = new ExpressionEvaluator();
+        return collection.stream().filter(p -> evaluator.evaluateBoolean(p.getProperty() + " != null", object)).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+
     }
 
 
