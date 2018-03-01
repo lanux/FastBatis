@@ -6,5 +6,6 @@ import java.util.Collection;
 
 @FastMapper
 public interface BatchInsertMapper<T> {
+
     int insert(Collection<T> collection);
 }

@@ -6,7 +6,7 @@ import org.lx.mybatis.entity.Selectable;
 import java.util.List;
 
 @FastMapper
-public interface SelectSelectiveMapper<T extends Selectable> {
+public interface SelectSelectiveMapper<T> {
 
     List<T> selectSelective(T t);
 

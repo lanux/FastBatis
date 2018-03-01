@@ -3,6 +3,7 @@ package org.lx.mybatis.example;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.Selectable;
 
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

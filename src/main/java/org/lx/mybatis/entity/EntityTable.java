@@ -24,8 +24,8 @@ public class EntityTable {
     //属性和列对应
     protected Map<String, EntityColumn> propertyMap;
     private String name;
-    private String catalog;
-    private String schema;
+    private String catalog = "";
+    private String schema = "";
     private String orderByClause;
     private String baseSelect;
     //实体类 => 全部列属性

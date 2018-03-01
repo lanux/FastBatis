@@ -16,15 +16,8 @@ public class EntityColumn {
     private Class<? extends TypeHandler<?>> typeHandler;
     private String sequenceName;
     private boolean id = false;
-    private boolean uuid = false;
-    private boolean identity = false;
+    private boolean blob = false;
     private String generator;
-    //排序
-    private String orderBy;
-    //可插入
-    private boolean insertable = true;
-    //可更新
-    private boolean updatable = true;
 
     public EntityColumn() {
     }
@@ -93,13 +86,16 @@ public class EntityColumn {
         if (StringUtil.isNotEmpty(suffix)) {
             sb.append(suffix);
         }
+        //如果 null 被当作值来传递，对于所有可能为空的列，JDBC Type 是需要的
         if (this.jdbcType != null) {
             sb.append(",jdbcType=");
             sb.append(this.jdbcType.toString());
         } else if (this.typeHandler != null) {
             sb.append(",typeHandler=");
             sb.append(this.typeHandler.getCanonicalName());
-        } else if (!this.javaType.isArray()) {//当类型为数组时，不设置javaType#103
+        } else if (!this.javaType.isArray()) {
+            //当类型为数组时，不设置javaType#103
+            //3.4.0 以前的 mybatis 无法获取父类中泛型的 javaType，所以如果使用低版本，就需要设置 useJavaType = true
             sb.append(",javaType=");
             sb.append(javaType.getCanonicalName());
         }
@@ -110,44 +106,6 @@ public class EntityColumn {
         return sb.toString();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        EntityColumn that = (EntityColumn) o;
-
-        if (id != that.id) return false;
-        if (uuid != that.uuid) return false;
-        if (identity != that.identity) return false;
-        if (table != null ? !table.equals(that.table) : that.table != null) return false;
-        if (property != null ? !property.equals(that.property) : that.property != null) return false;
-        if (column != null ? !column.equals(that.column) : that.column != null) return false;
-        if (javaType != null ? !javaType.equals(that.javaType) : that.javaType != null) return false;
-        if (jdbcType != that.jdbcType) return false;
-        if (typeHandler != null ? !typeHandler.equals(that.typeHandler) : that.typeHandler != null) return false;
-        if (sequenceName != null ? !sequenceName.equals(that.sequenceName) : that.sequenceName != null) return false;
-        if (generator != null ? !generator.equals(that.generator) : that.generator != null) return false;
-        return !(orderBy != null ? !orderBy.equals(that.orderBy) : that.orderBy != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = table != null ? table.hashCode() : 0;
-        result = 31 * result + (property != null ? property.hashCode() : 0);
-        result = 31 * result + (column != null ? column.hashCode() : 0);
-        result = 31 * result + (javaType != null ? javaType.hashCode() : 0);
-        result = 31 * result + (jdbcType != null ? jdbcType.hashCode() : 0);
-        result = 31 * result + (typeHandler != null ? typeHandler.hashCode() : 0);
-        result = 31 * result + (sequenceName != null ? sequenceName.hashCode() : 0);
-        result = 31 * result + (id ? 1 : 0);
-        result = 31 * result + (uuid ? 1 : 0);
-        result = 31 * result + (identity ? 1 : 0);
-        result = 31 * result + (generator != null ? generator.hashCode() : 0);
-        result = 31 * result + (orderBy != null ? orderBy.hashCode() : 0);
-        return result;
-    }
 
     public String getColumn() {
         return column;
@@ -199,14 +157,6 @@ public class EntityColumn {
         this.jdbcType = jdbcType;
     }
 
-    public String getOrderBy() {
-        return orderBy;
-    }
-
-    public void setOrderBy(String orderBy) {
-        this.orderBy = orderBy;
-    }
-
     public String getProperty() {
         return property;
     }
@@ -247,35 +197,11 @@ public class EntityColumn {
         this.id = id;
     }
 
-    public boolean isIdentity() {
-        return identity;
+    public boolean isBlob() {
+        return blob;
     }
 
-    public void setIdentity(boolean identity) {
-        this.identity = identity;
-    }
-
-    public boolean isInsertable() {
-        return insertable;
-    }
-
-    public void setInsertable(boolean insertable) {
-        this.insertable = insertable;
-    }
-
-    public boolean isUpdatable() {
-        return updatable;
-    }
-
-    public void setUpdatable(boolean updatable) {
-        this.updatable = updatable;
-    }
-
-    public boolean isUuid() {
-        return uuid;
-    }
-
-    public void setUuid(boolean uuid) {
-        this.uuid = uuid;
+    public void setBlob(boolean blob) {
+        this.blob = blob;
     }
 }
