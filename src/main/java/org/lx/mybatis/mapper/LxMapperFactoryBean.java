@@ -1,7 +1,11 @@
 package org.lx.mybatis.mapper;
 
 import org.apache.ibatis.executor.ErrorContext;
+import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
 import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.mapper.MapperFactoryBean;
 
@@ -30,5 +34,6 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
             }
         }
 
+        MappedStatement statement = new MappedStatement.Builder(configuration, "", new DynamicSqlSource(configuration,null), SqlCommandType.SELECT).build();
     }
 }

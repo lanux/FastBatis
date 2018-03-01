@@ -29,6 +29,10 @@ public class GeneratedCriteria {
         addCriterion(new Criterion(column, condition, value));
     }
 
+    protected void addCriterion(String column, String condition, Object value, MatchMode matchMode) {
+        addCriterion(new Criterion(column, condition, value));
+    }
+
     protected void addCriterion(String column, String condition, Object value1, Object value2) {
         addCriterion(new Criterion(column, condition, value1, value2));
     }
@@ -106,12 +110,12 @@ public class GeneratedCriteria {
         return this;
     }
 
-    public GeneratedCriteria andLike(String property, String value) {
+    public GeneratedCriteria andLike(String property, String value, MatchMode matchMode) {
         addCriterion(column(property), "like", value);
         return this;
     }
 
-    public GeneratedCriteria andNotLike(String property, String value) {
+    public GeneratedCriteria andNotLike(String property, String value, MatchMode matchMode) {
         addCriterion(column(property), "not like", value);
         return this;
     }
@@ -177,12 +181,12 @@ public class GeneratedCriteria {
         return this;
     }
 
-    public GeneratedCriteria orLike(String property, String value) {
+    public GeneratedCriteria orLike(String property, String value, MatchMode matchMode) {
         addOrCriterion(column(property), "like", value);
         return this;
     }
 
-    public GeneratedCriteria orNotLike(String property, String value) {
+    public GeneratedCriteria orNotLike(String property, String value, MatchMode matchMode) {
         addOrCriterion(column(property), "not like", value);
         return this;
     }
