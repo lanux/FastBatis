@@ -21,7 +21,7 @@ public class Criterion {
 
     private boolean listValue;
 
-    private String typeHandler;
+    private String jdbcType;
 
     protected Criterion() {
     }
@@ -50,17 +50,17 @@ public class Criterion {
         super();
         this.column = column;
         this.condition = condition;
-        this.typeHandler = null;
+        this.jdbcType = null;
         this.noValue = true;
         this.andOr = isOr ? "OR" : this.andOr;
     }
 
-    protected Criterion(String column, String condition, Object value, String typeHandler, boolean isOr) {
+    protected Criterion(String column, String condition, Object value, String jdbcType, boolean isOr) {
         super();
         this.column = column;
         this.condition = condition;
         this.value = value;
-        this.typeHandler = typeHandler;
+        this.jdbcType = jdbcType;
         this.andOr = isOr ? "OR" : this.andOr;
         if (value instanceof Collection) {
             this.listValue = true;
@@ -74,13 +74,13 @@ public class Criterion {
         this(column, condition, value, null, isOr);
     }
 
-    protected Criterion(String column, String condition, Object value, Object secondValue, String typeHandler, boolean isOr) {
+    protected Criterion(String column, String condition, Object value, Object secondValue, String jdbcType, boolean isOr) {
         super();
         this.column = column;
         this.condition = condition;
         this.value = value;
         this.secondValue = secondValue;
-        this.typeHandler = typeHandler;
+        this.jdbcType = jdbcType;
         this.betweenValue = true;
         this.andOr = isOr ? "or" : "and";
     }
@@ -138,8 +138,8 @@ public class Criterion {
         return this;
     }
 
-    public Criterion setTypeHandler(String typeHandler) {
-        this.typeHandler = typeHandler;
+    public Criterion setJdbcType(String jdbcType) {
+        this.jdbcType = jdbcType;
         return this;
     }
 
@@ -179,8 +179,8 @@ public class Criterion {
         return listValue;
     }
 
-    public String getTypeHandler() {
-        return typeHandler;
+    public String getJdbcType() {
+        return jdbcType;
     }
 
     public String columnCondition() {

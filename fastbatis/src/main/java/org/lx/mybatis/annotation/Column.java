@@ -31,6 +31,10 @@ public @interface Column {
 
     String delimiter() default "";// 分隔符
 
+    boolean insertable() default true;
+
+    boolean updatable() default true;
+
     JdbcType jdbcType() default JdbcType.UNDEFINED;
 
     Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
