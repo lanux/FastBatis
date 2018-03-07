@@ -45,7 +45,6 @@ public enum MatchMode {
      * Convert the pattern, by appending/prepending "%"
      *
      * @param pattern The pattern for convert according to the mode
-     *
      * @return The converted pattern
      */
     public abstract String toMatchString(String pattern);

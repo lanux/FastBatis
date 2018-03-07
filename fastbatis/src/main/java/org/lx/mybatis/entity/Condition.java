@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Condition{
+public class Condition {
 
     protected List<Criteria> oredCriteria = new ArrayList<>();
 
@@ -35,24 +35,16 @@ public class Condition{
         return this;
     }
 
-    public void or(Criteria criteria) {
-        criteria.setAndOr("or");
-        oredCriteria.add(criteria);
-    }
 
-    public Criteria or() {
+
+    private Criteria or() {
         Criteria criteria = createCriteriaInternal();
         criteria.setAndOr("or");
         oredCriteria.add(criteria);
         return criteria;
     }
 
-    public void and(Criteria criteria) {
-        criteria.setAndOr("and");
-        oredCriteria.add(criteria);
-    }
-
-    public Criteria and() {
+    private Criteria and() {
         Criteria criteria = createCriteriaInternal();
         criteria.setAndOr("and");
         oredCriteria.add(criteria);
@@ -87,4 +79,226 @@ public class Condition{
         return oredCriteria;
     }
 
+    public class Criteria {
+        protected List<Criterion> criteria;
+
+        protected String andOr = "OR";//连接条件
+
+        protected Criteria() {
+            criteria = new ArrayList<>();
+        }
+
+        protected void addCriterion(Criterion criterion) {
+            criteria.add(criterion);
+        }
+
+
+        protected void addCriterion(String column, String condition) {
+            addCriterion(new Criterion(column, condition));
+        }
+
+        protected void addCriterion(String column, String condition, Object value) {
+            addCriterion(new Criterion(column, condition, value));
+        }
+
+        protected void addCriterion(String column, String condition, Object value1, Object value2) {
+            addCriterion(new Criterion(column, condition, value1, value2));
+        }
+
+
+        protected void addOrCriterion(String column, String condition) {
+            addCriterion(new Criterion(column, condition, true));
+        }
+
+        protected void addOrCriterion(String column, String condition, Object value) {
+            addCriterion(new Criterion(column, condition, value, true));
+        }
+
+        protected void addOrCriterion(String column, String condition, Object value1, Object value2) {
+            addCriterion(new Criterion(column, condition, value1, value2, true));
+        }
+
+        public Criteria andIsNull(String property) {
+            addCriterion(column(property), "is null");
+            return this;
+        }
+
+        public Criteria andIsNotNull(String property) {
+            addCriterion(column(property), "is not null");
+            return this;
+        }
+
+        public Criteria andEqualTo(String property, Object value) {
+            addCriterion(column(property), "=", value);
+            return this;
+        }
+
+        public Criteria andNotEqualTo(String property, Object value) {
+            addCriterion(column(property), "<>", value);
+            return this;
+        }
+
+        public Criteria andGreaterThan(String property, Object value) {
+            addCriterion(column(property), ">", value);
+            return this;
+        }
+
+        public Criteria andGreaterThanOrEqualTo(String property, Object value) {
+            addCriterion(column(property), ">=", value);
+            return this;
+        }
+
+        public Criteria andLessThan(String property, Object value) {
+            addCriterion(column(property), "<", value);
+            return this;
+        }
+
+        public Criteria andLessThanOrEqualTo(String property, Object value) {
+            addCriterion(column(property), "<=", value);
+            return this;
+        }
+
+        public Criteria andIn(String property, Iterable values) {
+            addCriterion(column(property), "in", values);
+            return this;
+        }
+
+        public Criteria andNotIn(String property, Iterable values) {
+            addCriterion(column(property), "not in", values);
+            return this;
+        }
+
+        public Criteria andBetween(String property, Object value1, Object value2) {
+            addCriterion(column(property), "between", value1, value2);
+            return this;
+        }
+
+        public Criteria andNotBetween(String property, Object value1, Object value2) {
+            addCriterion(column(property), "not between", value1, value2);
+            return this;
+        }
+
+        public Criteria andLike(String property, String value, MatchMode matchMode) {
+            addCriterion(column(property), "like", matchMode.toMatchString(value));
+            return this;
+        }
+
+        public Criteria andNotLike(String property, String value, MatchMode matchMode) {
+            addCriterion(column(property), "not like", matchMode.toMatchString(value));
+            return this;
+        }
+
+
+        public Criteria orIsNull(String property) {
+            addCriterion(new Criterion(column(property), "is null", true));
+            return this;
+        }
+
+        public Criteria orIsNotNull(String property) {
+            addOrCriterion(column(property), "is not null");
+            return this;
+        }
+
+        public Criteria orEqualTo(String property, Object value) {
+            addOrCriterion(column(property), "=", value);
+            return this;
+        }
+
+        public Criteria orNotEqualTo(String property, Object value) {
+            addOrCriterion(column(property), "<>", value);
+            return this;
+        }
+
+        public Criteria orGreaterThan(String property, Object value) {
+            addOrCriterion(column(property), ">", value);
+            return this;
+        }
+
+        public Criteria orGreaterThanOrEqualTo(String property, Object value) {
+            addOrCriterion(column(property), ">=", value);
+            return this;
+        }
+
+        public Criteria orLessThan(String property, Object value) {
+            addOrCriterion(column(property), "<", value);
+            return this;
+        }
+
+        public Criteria orLessThanOrEqualTo(String property, Object value) {
+            addOrCriterion(column(property), "<=", value);
+            return this;
+        }
+
+        public Criteria orIn(String property, Iterable values) {
+            addOrCriterion(column(property), "in", values);
+            return this;
+        }
+
+        public Criteria orNotIn(String property, Iterable values) {
+            addOrCriterion(column(property), "not in", values);
+            return this;
+        }
+
+        public Criteria orBetween(String property, Object value1, Object value2) {
+            addOrCriterion(column(property), "between", value1, value2);
+            return this;
+        }
+
+        public Criteria orNotBetween(String property, Object value1, Object value2) {
+            addOrCriterion(column(property), "not between", value1, value2);
+            return this;
+        }
+
+        public Criteria orLike(String property, String value, MatchMode matchMode) {
+            addOrCriterion(column(property), "like", matchMode.toMatchString(value));
+            return this;
+        }
+
+        public Criteria orNotLike(String property, String value, MatchMode matchMode) {
+            addOrCriterion(column(property), "not like", matchMode.toMatchString(value));
+            return this;
+        }
+
+        public String getAndOr() {
+            return andOr;
+        }
+
+        public Criteria setAndOr(String andOr) {
+            this.andOr = andOr;
+            return this;
+        }
+
+        public List<Criterion> getCriteria() {
+            return criteria;
+        }
+
+        //属性和列对应
+        protected Map<String, EntityColumn> propertyMap;
+
+        protected Criteria(Map<String, EntityColumn> propertyMap) {
+            super();
+            this.propertyMap = propertyMap;
+        }
+
+        public String column(String property) {
+            if (propertyMap.containsKey(property)) {
+                return propertyMap.get(property).getColumn();
+            } else {
+                return null;
+            }
+        }
+
+        public Criteria or() {
+            return Condition.this.or();
+        }
+
+        public Criteria and() {
+            return Condition.this.and();
+        }
+
+        public Condition end() {
+            return Condition.this;
+        }
+
+    }
 }
