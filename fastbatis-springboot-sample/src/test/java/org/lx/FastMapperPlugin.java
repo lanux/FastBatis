@@ -11,7 +11,7 @@ import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.*;
 
-public class TkMapperPlugin extends PluginAdapter {
+public class FastMapperPlugin extends PluginAdapter {
     private Set<String> mappers = new HashSet();
 
 

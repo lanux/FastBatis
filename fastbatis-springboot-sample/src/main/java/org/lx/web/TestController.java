@@ -32,14 +32,14 @@ public class TestController {
     public SysUser add() {
         SysUser test = new SysUser().setOrganizationId(22l).setUsername(RandomStringUtils.random(10));
         usersMapper.insertSelective(test);
-        usersMapper.selectByCondition(
-                new Condition(SysUser.class)
-                        .createCriteria()
-                        .andLike("name", "test", MatchMode.ANYWHERE)
-                        .andIn("id", Lists.newArrayList(1, 2, 3))
-                        .or()
-                        .andEqualTo("name", "")
-                        .end());
+//        usersMapper.selectByCondition(
+//                new Condition(SysUser.class)
+//                        .createCriteria()
+//                        .andLike("name", "test", MatchMode.ANYWHERE)
+//                        .andIn("id", Lists.newArrayList(1, 2, 3))
+//                        .or()
+//                        .andEqualTo("name", "")
+//                        .end());
 
         return test;
     }

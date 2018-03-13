@@ -5,14 +5,10 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.List;
-import java.util.Properties;
 
 public class LombokPlugin extends PluginAdapter {
-    private String beginningDelimiter = "";
-    private String endingDelimiter = "";
 
 
     private void processEntityClass(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
@@ -22,25 +18,6 @@ public class LombokPlugin extends PluginAdapter {
         topLevelClass.addAnnotation("@Getter");
         topLevelClass.addAnnotation("@Setter");
         topLevelClass.addAnnotation("@Accessors(chain=true)");
-        topLevelClass.addImportedType("javax.persistence.*");
-        String tableName = introspectedTable.getFullyQualifiedTableNameAtRuntime();
-        if (StringUtility.stringContainsSpace(tableName)) {
-            tableName = this.context.getBeginningDelimiter() + tableName + this.context.getEndingDelimiter();
-        }
-        topLevelClass.addAnnotation("@Table(name = \"" + this.getDelimiterName(tableName, introspectedTable.getTableConfiguration().getSchema()) + "\")");
-    }
-
-    public String getDelimiterName(String name, String schema) {
-        StringBuilder nameBuilder = new StringBuilder();
-        if (StringUtility.stringHasValue(schema)) {
-            nameBuilder.append(schema);
-            nameBuilder.append(".");
-        }
-
-        nameBuilder.append(this.beginningDelimiter);
-        nameBuilder.append(name);
-        nameBuilder.append(this.endingDelimiter);
-        return nameBuilder.toString();
     }
 
     @Override
@@ -78,17 +55,5 @@ public class LombokPlugin extends PluginAdapter {
         return true;
     }
 
-    @Override
-    public void setProperties(Properties properties) {
-        String beginningDelimiter = properties.getProperty("beginningDelimiter");
-        if (StringUtility.stringHasValue(beginningDelimiter)) {
-            this.beginningDelimiter = beginningDelimiter;
-        }
 
-        String endingDelimiter = properties.getProperty("endingDelimiter");
-        if (StringUtility.stringHasValue(endingDelimiter)) {
-            this.endingDelimiter = endingDelimiter;
-        }
-        super.setProperties(properties);
-    }
 }

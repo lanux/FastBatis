@@ -66,7 +66,7 @@ public class ProviderSqlHelper {
     public static String whereClause(Condition condition) {
         if (condition == null) return null;
         StringBuilder sb = new StringBuilder();
-        List<Criteria> oredCriteria = condition.getOredCriteria();
+        List<Condition.Criteria> oredCriteria = condition.getOredCriteria();
         for (int i = 0; i < oredCriteria.size(); i++) {
             if (oredCriteria.size() > 1) {
                 sb.append("(");
