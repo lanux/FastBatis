@@ -1,32 +1,17 @@
 package org.lx.mybatis.provider;
 
-import org.apache.ibatis.jdbc.AbstractSQL;
 import org.apache.ibatis.jdbc.SQL;
-import org.lx.mybatis.entity.Condition;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
+import org.lx.mybatis.entity.SelectCondition;
 import org.lx.mybatis.helper.EntityHelper;
-import org.lx.mybatis.helper.ProviderSqlHelper;
+import org.lx.mybatis.helper.SqlUtil;
+import org.lx.mybatis.helper.XmlSqlUtil;
 
 import java.util.List;
 
 public class BaseSelectProvider {
 
-    /**
-     * 查询
-     *
-     * @param object
-     * @return
-     */
-    public String selectOne(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
-        return new SQL() {{
-            SELECT(ProviderSqlHelper.getAllColumns(entityTable));
-            FROM(entityTable.getName());
-            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
-            WHERE(ProviderSqlHelper.getEqualsHolder(select));
-        }}.toString();
-    }
 
     /**
      * 查询
@@ -37,21 +22,20 @@ public class BaseSelectProvider {
     public String select(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
-            SELECT(ProviderSqlHelper.getAllColumns(entityTable));
+            SELECT(SqlUtil.getAllColumns(entityTable));
             FROM(entityTable.getName());
             List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
-            WHERE(ProviderSqlHelper.getEqualsHolder(select));
+            WHERE(SqlUtil.getEqualsHolder(select));
         }}.toString();
     }
 
-//    public String select(Class clazz) {
-//        EntityTable entityTable = EntityHelper.getEntityTable(clazz);
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("SELECT " + ProviderSqlHelper.getAllColumns(entityTable) + " FROM \n");
-//        sb.append(entityTable.getName() + " \n");
-//        sb.append(ProviderSqlHelper.whereAllIfColumns(clazz));
-//        return sb.toString();
-//    }
+    public String select(Class clazz) {
+        EntityTable entityTable = EntityHelper.getEntityTable(clazz);
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT " + SqlUtil.getAllColumns(entityTable) + SqlUtil.fromTable(entityTable.getName()));
+        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getEntityClassColumns()));
+        return sb.toString();
+    }
 
     /**
      * 根据主键进行查询
@@ -61,9 +45,9 @@ public class BaseSelectProvider {
     public String selectByPrimaryKey(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         return new SQL() {{
-            SELECT(ProviderSqlHelper.getAllColumns(entityTable));
+            SELECT(SqlUtil.getAllColumns(entityTable));
             FROM(entityTable.getName());
-            WHERE(ProviderSqlHelper.getEqualsHolder(entityTable.getEntityClassPKColumns()));
+            WHERE(SqlUtil.getEqualsHolder(entityTable.getEntityClassPKColumns()));
         }}.toString();
     }
 
@@ -78,7 +62,7 @@ public class BaseSelectProvider {
         return new SQL() {{
             SELECT("COUNT(1)");
             FROM(entityTable.getName());
-            WHERE(ProviderSqlHelper.getEqualsHolder(entityTable.getEntityClassPKColumns()));
+            WHERE(SqlUtil.getEqualsHolder(entityTable.getEntityClassPKColumns()));
         }}.toString();
     }
 
@@ -89,12 +73,12 @@ public class BaseSelectProvider {
      * @param condition
      * @return
      */
-    public String selectAll(Condition condition) {
+    public String xmlSelectByCondition(SelectCondition condition) {
         EntityTable entityTable = EntityHelper.getEntityTable(condition.getEntityClass());
         return new SQL() {{
-            SELECT(ProviderSqlHelper.getAllColumns(entityTable));
+            SELECT(SqlUtil.getAllColumns(entityTable));
             FROM(entityTable.getName());
-            WHERE(ProviderSqlHelper.whereClause(condition));
+            WHERE(XmlSqlUtil.xmlWhereClause(condition));
         }}.toString();
     }
 }

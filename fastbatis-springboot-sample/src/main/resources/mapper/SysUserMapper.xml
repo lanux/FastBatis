@@ -57,4 +57,12 @@
     <result column="salt" jdbcType="VARCHAR" property="salt" />
     <result column="locked" jdbcType="TINYINT" property="locked" />
   </resultMap>
+  <resultMap id="BaseResultMap" type="org.lx.model.SysUser">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="organization_id" jdbcType="BIGINT" property="organizationId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="salt" jdbcType="VARCHAR" property="salt" />
+    <result column="locked" jdbcType="TINYINT" property="locked" />
+  </resultMap>
 </mapper>

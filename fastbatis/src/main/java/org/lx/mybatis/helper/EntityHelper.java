@@ -3,7 +3,6 @@ package org.lx.mybatis.helper;
 import org.apache.ibatis.scripting.xmltags.ExpressionEvaluator;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.UnknownTypeHandler;
-import org.lx.mybatis.MapperException;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
 import org.lx.mybatis.util.StringUtil;
@@ -35,7 +34,7 @@ public class EntityHelper {
         EntityTable entityTable = entityTableMap.get(entityClass);
         if (entityTable == null) {
             synchronized (entityTableMap) {
-                entityTableMap.put(entityClass,entityTable = resolveEntity(entityClass));
+                entityTableMap.put(entityClass, entityTable = resolveEntity(entityClass));
             }
         }
         return entityTable;
@@ -129,7 +128,7 @@ public class EntityHelper {
             entityTable.setEntityClassPKColumns(entityTable.getEntityClassColumns());
         }
         entityTable.initPropertyMap();
-        entityTableMap.put(entityClass,entityTable);
+        entityTableMap.put(entityClass, entityTable);
         return entityTable;
     }
 
@@ -188,4 +187,15 @@ public class EntityHelper {
     }
 
 
+
+
+    public static List<EntityColumn> getColumns(List<EntityColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUnUpdatable) {
+        if (columnList != null) {
+            return columnList.stream().filter(p -> excludeBlob ? p.isBlob() : true)
+                    .filter(p -> excludeUnInsertable ? p.isInsertable() : true)
+                    .filter(p -> excludeUnUpdatable ? p.isUpdatable() : true)
+                    .collect(Collectors.toList());
+        }
+        return Collections.EMPTY_LIST;
+    }
 }

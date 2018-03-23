@@ -1,6 +1,7 @@
 package org.lx.mybatis.entity;
 
 import org.lx.mybatis.helper.EntityHelper;
+import org.lx.mybatis.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +12,13 @@ public class Condition {
 
     protected List<Criteria> oredCriteria = new ArrayList<>();
 
+    protected String alias;
+
     protected Class<?> entityClass;
 
     protected EntityTable table;
 
     protected Map<String, EntityColumn> propertyMap;//属性和列对应
-
-    protected List<OrderBy> orderBys = new ArrayList<>();
 
     public Condition(Class<?> entityClass) {
         this.entityClass = entityClass;
@@ -25,17 +26,14 @@ public class Condition {
         propertyMap = table.getPropertyMap();
     }
 
-    public Condition orderBy(String property) {
-        orderBy(property, false);
-        return this;
+    public String getAlias() {
+        return alias;
     }
 
-    public Condition orderBy(String property, Boolean descending) {
-        this.orderBys.add(new OrderBy(property, descending));
+    public Condition alias(String alias) {
+        this.alias = alias;
         return this;
     }
-
-
 
     private Criteria or() {
         Criteria criteria = createCriteriaInternal();
@@ -89,6 +87,9 @@ public class Condition {
         }
 
         protected void addCriterion(Criterion criterion) {
+            if (StringUtil.isNotEmpty(Condition.this.alias)) {
+                criterion.setColumn(Condition.this.alias + "" + criterion.getColumn());
+            }
             criteria.add(criterion);
         }
 
@@ -281,10 +282,10 @@ public class Condition {
         }
 
         public String column(String property) {
-            if (propertyMap.containsKey(property)) {
+            if (propertyMap != null && propertyMap.containsKey(property)) {
                 return propertyMap.get(property).getColumn();
             } else {
-                return null;
+                return property;
             }
         }
 

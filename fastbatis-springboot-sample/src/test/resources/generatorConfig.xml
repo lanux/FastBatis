@@ -10,7 +10,7 @@
         <property name="javaFileEncoding" value="UTF-8"/>
 
         <plugin type="org.lx.FastMapperPlugin">
-            <property name="mappers" value="org.lx.mybatis.mapper.base.CrudMapper,org.lx.mybatis.mapper.selective.CrudSelectiveMapper"/>
+            <property name="mappers" value="org.lx.mybatis.mapper.condition.ConditionMapper,org.lx.mybatis.mapper.base.CrudMapper,org.lx.mybatis.mapper.selective.CrudSelectiveMapper"/>
         </plugin>
 
         <plugin type="org.lx.FastAnnotationPlugin">
