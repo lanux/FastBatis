@@ -3,7 +3,6 @@ package org.lx.mybatis.mapper.selective;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Options;
 import org.lx.mybatis.annotation.FastMapper;
-import org.lx.mybatis.provider.BaseInsertProvider;
 
 @FastMapper
 public interface InsertSelectiveMapper<T> {

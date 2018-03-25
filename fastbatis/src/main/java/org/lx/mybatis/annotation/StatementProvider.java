@@ -1,5 +1,7 @@
 package org.lx.mybatis.annotation;
 
+import org.apache.ibatis.mapping.SqlCommandType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,4 +13,6 @@ public @interface StatementProvider {
     Class value();
 
     String method() default "";
+
+    SqlCommandType commandType() default SqlCommandType.UNKNOWN;
 }

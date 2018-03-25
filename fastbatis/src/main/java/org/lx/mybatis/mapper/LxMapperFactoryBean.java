@@ -1,19 +1,14 @@
 package org.lx.mybatis.mapper;
 
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.SqlCommandType;
-import org.apache.ibatis.mapping.SqlSource;
-import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.lx.mybatis.annotation.FastMapper;
+import org.lx.mybatis.builder.StatementProviderAnnotationBuilder;
 import org.lx.mybatis.helper.EntityHelper;
-import org.lx.mybatis.provider.BaseSelectProvider;
 import org.mybatis.spring.mapper.MapperFactoryBean;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 /**
  * use like @MapperScan(basePackages = "org.lx.mapper",factoryBean = LxMapperFactoryBean.class)
@@ -27,9 +22,9 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
         super(mapperInterface);
     }
 
-
     @Override
-    public void initDao() throws Exception {
+    protected void checkDaoConfig() {
+        super.checkDaoConfig();
         Class<T> mapperInterface = super.getMapperInterface();
         if (hasFastMapper(mapperInterface)) {
             Class<?> entityClass = getEntityClassByInterface(mapperInterface);
@@ -37,8 +32,13 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
                 EntityHelper.resolveEntity(entityClass);
                 Configuration configuration = this.getSqlSession().getConfiguration();
                 Method[] methods = mapperInterface.getMethods();
+                StatementProviderAnnotationBuilder annotationBuilder = new StatementProviderAnnotationBuilder(configuration, mapperInterface);
                 for (Method method : methods) {
-                    addStatement(mapperInterface, entityClass, method.getName(), configuration);
+                    String statementId = mapperInterface.getName() + "." + method.getName();
+                    if (configuration.hasStatement(statementId) || method.isBridge()) {
+                        continue;
+                    }
+                    annotationBuilder.parseStatement(method,entityClass);
                 }
             }
         }
@@ -72,45 +72,6 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
         }
         return null;
     }
-
-    private synchronized void addStatement(Class<?> mapperClass, Class<?> entityClass, String methodName, Configuration configuration) {
-        String statementId = mapperClass.getName() + "." + methodName;
-        if (configuration.hasStatement(statementId)) {
-            return;
-        }
-        if (methodName.equals("selectSelective")) {
-//            LanguageDriver languageDriver = configuration.getDefaultScriptingLanguageInstance();
-//            SqlSource script = languageDriver.createSqlSource(configuration, "<script>" + BaseSelectProvider.select(entityClass) + "</script>", entityClass);
-//            MappedStatement.Builder builder = new MappedStatement.Builder(configuration, statementId, script, SqlCommandType.SELECT)
-//                    .resultMaps(new ArrayList<>(configuration.getResultMaps()));
-//            MappedStatement statement = builder.build();
-//            configuration.addMappedStatement(statement);
-
-//            if (SqlCommandType.INSERT.equals(statement.getSqlCommandType()) && statement.get != null && statement.getResultSetType().isAssignableFrom(entityClass)) {
-//                keyGeneratorBuilder.build(statementBuilder, entityClass);
-//            }
-        }
-    }
-
-
-//
-//    private MappedStatement buildNewStatement(SqlBuilder sqlBuilder, String statementId, Class<?> entityClass) {
-//
-//        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(this.configuration, statementId, sqlBuilder, sqlBuilder.getSqlCommandType());
-//
-//        if (sqlBuilder.getResultType() != null) {
-//            List<ResultMap> resultMaps = new ArrayList<ResultMap>();
-//            ResultMap.Builder resultMapBuilder = new ResultMap.Builder(configuration, statementBuilder.id() + "_Inline", sqlBuilder.getResultType(), sqlBuilder.getResultMappingList());
-//            resultMaps.add(resultMapBuilder.build());
-//            statementBuilder.resultMaps(resultMaps);
-//        }
-//
-//        if (SqlCommandType.INSERT.equals(sqlBuilder.getSqlCommandType()) && sqlBuilder.getResultType() != null && sqlBuilder.getResultType().isAssignableFrom(entityClass)) {
-//            keyGeneratorBuilder.build(statementBuilder, entityClass);
-//        }
-//        return statementBuilder.build();
-//
-//    }
 
 
 }

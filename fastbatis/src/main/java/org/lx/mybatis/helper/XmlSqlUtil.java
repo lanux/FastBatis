@@ -143,7 +143,7 @@ public class XmlSqlUtil {
     }
 
 
-    public static String whereClause(Condition condition) {
+    public static String whereClause() {
         return "<if test=\"_parameter != null\">" +
                 "<where>\n" +
                 "  <foreach collection=\"oredCriteria\" item=\"criteria\">\n" +
