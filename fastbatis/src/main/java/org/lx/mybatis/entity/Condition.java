@@ -78,7 +78,7 @@ public class Condition {
     }
 
     public class Criteria {
-        protected List<Criterion> criteria;
+        protected List<Criterion> criteria = new ArrayList<>();
 
         protected String andOr = "OR";//连接条件
 
@@ -268,6 +268,7 @@ public class Condition {
             this.andOr = andOr;
             return this;
         }
+
 
         public List<Criterion> getCriteria() {
             return criteria;

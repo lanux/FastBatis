@@ -1,12 +1,11 @@
 package org.lx.mybatis.mapper.selective;
 
 import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.Options;
 import org.lx.mybatis.annotation.FastMapper;
+import org.lx.mybatis.provider.StaticSqlProvider;
 
 @FastMapper
 public interface InsertSelectiveMapper<T> {
-    @InsertProvider(type = BaseInsertProvider.class, method = "insertSelective")
-    @Options(useGeneratedKeys = true, keyColumn = "id")
+    @InsertProvider(type = StaticSqlProvider.class, method = "insertSelective")
     int insertSelective(T t);
 }

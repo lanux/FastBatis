@@ -96,7 +96,7 @@ public class StaticSqlProvider {
      * @param object
      * @return
      */
-    public String selectCountBySelective(Object object) {
+    public String countBySelective(Object object) {
         EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
         List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
         return new SQL() {{

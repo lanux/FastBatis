@@ -34,6 +34,7 @@ public class StatementProviderAnnotationBuilder {
     public StatementProviderAnnotationBuilder(Configuration configuration, Class<?> type) {
         String resource = type.getName().replace('.', '/') + ".java (best guess)";
         this.assistant = new MapperBuilderAssistant(configuration, resource);
+        assistant.setCurrentNamespace(type.getName());
         this.configuration = configuration;
         this.type = type;
     }

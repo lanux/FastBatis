@@ -1,7 +1,6 @@
 package org.lx.mybatis.builder;
 
 import org.apache.ibatis.builder.BuilderException;
-import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.session.Configuration;
 import org.lx.mybatis.annotation.StatementProvider;
 
@@ -20,9 +19,8 @@ public class ProviderMethodInvoker {
         Class<?>[] providerMethodParameterTypes = null;
         try {
 
-            this.providerType = provider.value();
+            this.providerType = provider.type();
             providerMethodName = provider.method();
-
             for (Method m : this.providerType.getMethods()) {
                 if (providerMethodName.equals(m.getName())) {
                     if (m.getReturnType() == String.class) {
@@ -48,7 +46,7 @@ public class ProviderMethodInvoker {
         }
         for (int i = 0; i < providerMethodParameterTypes.length; i++) {
             Class<?> parameterType = providerMethodParameterTypes[i];
-            if (parameterType == ProviderContext.class) {
+            if (parameterType == StatementProviderContext.class) {
                 if (this.providerContext != null) {
                     throw new BuilderException("Error creating SqlSource for SqlProvider. ProviderContext found multiple in SqlProvider method ("
                             + this.providerType.getName() + "." + providerMethod.getName()

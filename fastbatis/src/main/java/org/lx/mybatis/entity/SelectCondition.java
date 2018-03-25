@@ -36,4 +36,5 @@ public class SelectCondition extends Condition {
     public List<OrderBy> getOrderBys() {
         return orderBys;
     }
+
 }

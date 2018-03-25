@@ -1,6 +1,5 @@
 package org.lx.mybatis.provider;
 
-import org.apache.ibatis.jdbc.SQL;
 import org.lx.mybatis.builder.StatementProviderContext;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
@@ -101,11 +100,8 @@ public class DynamicSqlProvider {
         EntityTable entityTable = EntityHelper.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.deleteFromTable(entityTable.getName()));
-        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getEntityClassColumns()));
-        return new SQL() {{
-            DELETE_FROM(entityTable.getName());
-            WHERE(XmlSqlUtil.whereClause());
-        }}.toString();
+        sb.append(XmlSqlUtil.whereClause());
+        return sb.toString();
     }
 
 
@@ -131,13 +127,29 @@ public class DynamicSqlProvider {
      * @param context
      * @return
      */
-    public String xmlSelectByCondition(StatementProviderContext context) {
+    public String selectByCondition(StatementProviderContext context) {
         EntityTable entityTable = EntityHelper.getEntityTable(context.getEntityClass());
-        return new SQL() {{
-            SELECT(SqlUtil.getAllColumns(entityTable));
-            FROM(entityTable.getName());
-            WHERE(XmlSqlUtil.whereClause());
-        }}.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT ");
+        sb.append(SqlUtil.getAllColumns(entityTable));
+        sb.append(SqlUtil.fromTable(entityTable.getName()));
+        sb.append(XmlSqlUtil.whereClause());
+        return sb.toString();
+    }
+    /**
+     * 查询数量
+     *
+     * @param context
+     * @return
+     */
+    public String countByCondition(StatementProviderContext context) {
+        EntityTable entityTable = EntityHelper.getEntityTable(context.getEntityClass());
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT ");
+        sb.append("COUNT(1) ");
+        sb.append(SqlUtil.fromTable(entityTable.getName()));
+        sb.append(XmlSqlUtil.whereClause());
+        return sb.toString();
     }
 
     /**

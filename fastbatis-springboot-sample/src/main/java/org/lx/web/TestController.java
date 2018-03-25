@@ -24,7 +24,10 @@ public class TestController {
     @RequestMapping("/test")
     @ResponseBody
     public List<SysUser> test() {
-        return usersMapper.selectSelective(new SysUser().setOrganizationId(1l));
+        SysUser t = new SysUser().setOrganizationId(1l);
+        int i = usersMapper.countBySelective(t);
+        System.out.println("i = " + i);
+        return usersMapper.selectBySelective(t);
     }
 
     @RequestMapping("/add")
