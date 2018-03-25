@@ -31,6 +31,8 @@ public class StatementProviderAnnotationBuilder {
     private final MapperBuilderAssistant assistant;
     private final Class<?> type;
 
+    private final Map<Class, Object> providerMap = new HashMap<>();
+
     public StatementProviderAnnotationBuilder(Configuration configuration, Class<?> type) {
         String resource = type.getName().replace('.', '/') + ".java (best guess)";
         this.assistant = new MapperBuilderAssistant(configuration, resource);
@@ -283,16 +285,50 @@ public class StatementProviderAnnotationBuilder {
 
     private SqlSource getSqlSourceFromAnnotations(Method method, Class<?> entityClass, Class<?> parameterType, LanguageDriver languageDriver) {
         StatementProvider annotation = method.getAnnotation(StatementProvider.class);
-        ProviderMethodInvoker providerSqlSource = new ProviderMethodInvoker(configuration, annotation, type, entityClass, method);
-        return buildSqlSourceFromStrings(new String[]{providerSqlSource.createSqlSource()}, parameterType, languageDriver);
+        Class providerType = annotation.type();
+        if (!providerMap.containsKey(providerType)) {
+            try {
+                providerMap.put(providerType, providerType.newInstance());
+            } catch (Exception e) {
+                throw new BuilderException("Error creating SqlSource for StatementProvider.  Cause: " + e, e);
+            }
+        }
+        Object provider = providerMap.get(providerType);
+        String providerMethodName = annotation.method();
+        Method providerMethod = null;
+        for (Method m : providerType.getMethods()) {
+            if (providerMethodName.equals(m.getName())) {
+                if (m.getReturnType() == String.class) {
+                    if (providerMethod != null) {
+                        throw new BuilderException("Method '" + providerMethodName + "' is found multiple in SqlProvider '" + providerType.getName() + "'. Sql provider method can not overload.");
+                    }
+                    providerMethod = m;
+                }
+            }
+        }
+        if (providerMethod == null) {
+            throw new BuilderException("Error creating SqlSource for StatementProvider. Method '"
+                    + providerMethodName + "' not found in StatementProvider '" + providerType.getName() + "'.");
+        }
+        StatementProviderContext providerContext = new StatementProviderContext().setConfiguration(configuration).setEntityClass(entityClass).setMapperType(this.type).setMapperMethod(method);
+        String sql = null;
+        try {
+            sql = (String) providerMethod.invoke(provider, providerContext);
+        } catch (Exception e) {
+            throw new BuilderException("Error invoking SqlProvider method ("
+                    + providerType.getName() + "." + providerMethod.getName()
+                    + ").  Cause: " + e, e);
+        }
+        return buildSqlSourceFromStrings(new String[]{sql}, parameterType, languageDriver);
     }
 
     private SqlSource buildSqlSourceFromStrings(String[] strings, Class<?> parameterTypeClass, LanguageDriver languageDriver) {
-        final StringBuilder sql = new StringBuilder();
+        final StringBuilder sql = new StringBuilder("<script>");
         for (String fragment : strings) {
             sql.append(fragment);
             sql.append(" ");
         }
+        sql.append("</script>");
         return languageDriver.createSqlSource(configuration, sql.toString().trim(), parameterTypeClass);
     }
 

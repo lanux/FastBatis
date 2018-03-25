@@ -144,10 +144,10 @@ public class XmlSqlUtil {
 
 
     public static String whereClause() {
-        return "<if test=\"_parameter != null\">" +
+        return "\n<if test=\"_parameter != null\">" +
                 "<where>\n" +
                 "  <foreach collection=\"_parameter.oredCriteria\" item=\"criteria\">\n" +
-                "    <if test=\"criteria.isNotEmpty\">\n" +
+                "    <if test=\"criteria.criteria!=null and criteria.criteria.size > 0\">\n" +
                 "      ${criteria.andOr}" +
                 "      <trim prefix=\"(\" prefixOverrides=\"and | or \" suffix=\")\">\n" +
                 "        <foreach collection=\"criteria.criteria\" item=\"criterion\">\n" +
