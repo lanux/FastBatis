@@ -20,6 +20,9 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 import org.lx.mybatis.annotation.StatementProvider;
+import org.lx.mybatis.entity.EntityTable;
+import org.lx.mybatis.helper.EntityHelper;
+import org.lx.mybatis.util.StringUtil;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -117,6 +120,7 @@ public class StatementProviderAnnotationBuilder {
         if (annotation == null) return;
         Class<?> parameterTypeClass = getParameterType(method);
         LanguageDriver languageDriver = getLanguageDriver(method);
+        EntityTable entityTable = EntityHelper.getEntityTable(entityClass);
         SqlSource sqlSource = getSqlSourceFromAnnotations(method, entityClass, parameterTypeClass, languageDriver);
         if (sqlSource != null) {
             Options options = method.getAnnotation(Options.class);
@@ -131,20 +135,22 @@ public class StatementProviderAnnotationBuilder {
             boolean useCache = isSelect;
 
             KeyGenerator keyGenerator;
-            String keyProperty = "id";
+            String keyProperty = "";
             String keyColumn = null;
             if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
                 // first check for SelectKey annotation - that overrides everything else
                 SelectKey selectKey = method.getAnnotation(SelectKey.class);
+                String defaultValue = entityTable.getKeyProperties();
+                String keyColumns = entityTable.getKeyColumns();
                 if (selectKey != null) {
                     keyGenerator = handleSelectKeyAnnotation(selectKey, mappedStatementId, getParameterType(method), languageDriver);
-                    keyProperty = selectKey.keyProperty();
+                    keyProperty = StringUtil.blankToDefault(selectKey.keyProperty(), "");
                 } else if (options == null) {
                     keyGenerator = configuration.isUseGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
                 } else {
                     keyGenerator = options.useGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
-                    keyProperty = options.keyProperty();
-                    keyColumn = options.keyColumn();
+                    keyProperty = StringUtil.blankToDefault(options.keyProperty(), "");
+                    keyColumn = StringUtil.blankToDefault(options.keyColumn(), "");
                 }
             } else {
                 keyGenerator = NoKeyGenerator.INSTANCE;
@@ -178,6 +184,9 @@ public class StatementProviderAnnotationBuilder {
             } else if (isSelect) {
                 resultMapId = parseResultMap(method);
             }
+
+            org.apache.ibatis.mapping.ResultMap resultMap = entityTable.getResultMap(configuration);
+
 
             assistant.addMappedStatement(
                     mappedStatementId,

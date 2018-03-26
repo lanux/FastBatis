@@ -27,6 +27,25 @@ public class StringUtil {
     }
 
 
+    public static boolean isBlank(CharSequence cs) {
+        int strLen;
+        if (cs != null && (strLen = cs.length()) != 0) {
+            for (int i = 0; i < strLen; ++i) {
+                if (!Character.isWhitespace(cs.charAt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean isNotBlank(CharSequence cs) {
+        return !isBlank(cs);
+    }
+
     /**
      * 将驼峰风格替换为下划线风格
      */
@@ -82,5 +101,9 @@ public class StringUtil {
             c += (char) 0x20;
         }
         return c;
+    }
+
+    public static String blankToDefault(String s, String defaultValue) {
+        return isBlank(s) ? defaultValue : s;
     }
 }

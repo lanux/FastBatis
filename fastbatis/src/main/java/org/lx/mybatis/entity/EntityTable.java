@@ -7,37 +7,32 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandler;
 import org.lx.mybatis.MapperException;
+import org.lx.mybatis.helper.SqlUtil;
 import org.lx.mybatis.util.StringUtil;
 
 import javax.persistence.Table;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 数据库表
  */
 public class EntityTable {
     public static final Pattern DELIMITER = Pattern.compile("^[`\\[\"]?(.*?)[`\\]\"]?$");
-    //属性和列对应
     protected Map<String, EntityColumn> propertyMap;
     private String name;
     private String catalog = "";
     private String schema = "";
-    private String orderByClause;
-    private String baseSelect;
-    //实体类 => 全部列属性
     private List<EntityColumn> entityClassColumns;
-    //实体类 => 主键信息
     private List<EntityColumn> entityClassPKColumns;
-    //useGenerator包含多列的时候需要用到
-    private List<String> keyProperties;
-    private List<String> keyColumns;
-    //resultMap对象
+
     private ResultMap resultMap;
-    //类
     private Class<?> entityClass;
 
     public EntityTable(Class<?> entityClass) {
@@ -125,14 +120,6 @@ public class EntityTable {
         }
     }
 
-    public String getBaseSelect() {
-        return baseSelect;
-    }
-
-    public void setBaseSelect(String baseSelect) {
-        this.baseSelect = baseSelect;
-    }
-
     public String getCatalog() {
         return catalog;
     }
@@ -161,37 +148,19 @@ public class EntityTable {
         this.entityClassPKColumns = entityClassPKColumns;
     }
 
-    public String[] getKeyColumns() {
-        if (keyColumns != null && keyColumns.size() > 0) {
-            return keyColumns.toArray(new String[]{});
-        }
-        return new String[]{};
+    public String getKeyColumns() {
+        return getEntityClassPKColumns().stream().map(p -> p.getColumn()).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
     }
 
-    public void setKeyColumns(String keyColumn) {
-        if (this.keyColumns == null) {
-            this.keyColumns = new ArrayList<String>();
-            this.keyColumns.add(keyColumn);
-        } else {
-            this.keyColumns.add(keyColumn);
-        }
+    /**
+     * 逗号分隔
+     *
+     * @return
+     */
+    public String getKeyProperties() {
+        return getEntityClassPKColumns().stream().map(p -> p.getProperty()).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
     }
 
-    public String[] getKeyProperties() {
-        if (keyProperties != null && keyProperties.size() > 0) {
-            return keyProperties.toArray(new String[]{});
-        }
-        return new String[]{};
-    }
-
-    public void setKeyProperties(String keyProperty) {
-        if (this.keyProperties == null) {
-            this.keyProperties = new ArrayList<String>();
-            this.keyProperties.add(keyProperty);
-        } else {
-            this.keyProperties.add(keyProperty);
-        }
-    }
 
     public String getName() {
         return name;
@@ -199,14 +168,6 @@ public class EntityTable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getOrderByClause() {
-        return orderByClause;
-    }
-
-    public void setOrderByClause(String orderByClause) {
-        this.orderByClause = orderByClause;
     }
 
     public String getPrefix() {
@@ -229,14 +190,6 @@ public class EntityTable {
 
     public void setSchema(String schema) {
         this.schema = schema;
-    }
-
-    public void setKeyColumns(List<String> keyColumns) {
-        this.keyColumns = keyColumns;
-    }
-
-    public void setKeyProperties(List<String> keyProperties) {
-        this.keyProperties = keyProperties;
     }
 
     public void setTable(Table table) {
