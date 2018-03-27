@@ -1,7 +1,6 @@
 package org.lx.mybatis.entity;
 
 import org.apache.ibatis.mapping.ResultFlag;
-import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeException;
@@ -10,7 +9,6 @@ import org.lx.mybatis.MapperException;
 import org.lx.mybatis.helper.SqlUtil;
 import org.lx.mybatis.util.StringUtil;
 
-import javax.persistence.Table;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ public class EntityTable {
     private List<EntityColumn> entityClassColumns;
     private List<EntityColumn> entityClassPKColumns;
 
-    private ResultMap resultMap;
     private Class<?> entityClass;
 
     public EntityTable(Class<?> entityClass) {
@@ -40,15 +37,12 @@ public class EntityTable {
     }
 
     /**
-     * 生成当前实体的resultMap对象
+     * 生成当前实体的resultMapping列表
      *
      * @param configuration
      * @return
      */
-    public ResultMap getResultMap(Configuration configuration) {
-        if (this.resultMap != null) {
-            return this.resultMap;
-        }
+    public List<ResultMapping> getResultMappings(Configuration configuration) {
         if (entityClassColumns == null || entityClassColumns.size() == 0) {
             return null;
         }
@@ -78,9 +72,8 @@ public class EntityTable {
             builder.flags(flags);
             resultMappings.add(builder.build());
         }
-        ResultMap.Builder builder = new ResultMap.Builder(configuration, "BaseMapperResultMap", this.entityClass, resultMappings, true);
-        this.resultMap = builder.build();
-        return this.resultMap;
+
+        return resultMappings;
     }
 
     /**
@@ -192,9 +185,4 @@ public class EntityTable {
         this.schema = schema;
     }
 
-    public void setTable(Table table) {
-        this.name = table.name();
-        this.catalog = table.catalog();
-        this.schema = table.schema();
-    }
 }

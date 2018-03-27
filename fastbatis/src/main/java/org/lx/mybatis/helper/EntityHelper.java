@@ -3,13 +3,12 @@ package org.lx.mybatis.helper;
 import org.apache.ibatis.scripting.xmltags.ExpressionEvaluator;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.UnknownTypeHandler;
+import org.lx.mybatis.annotation.Column;
+import org.lx.mybatis.annotation.Entity;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
 import org.lx.mybatis.util.StringUtil;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.beans.Transient;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -60,37 +59,6 @@ public class EntityHelper {
         return getEntityTable(entityClass).getEntityClassPKColumns();
     }
 
-    /**
-     * 获取查询的Select
-     *
-     * @param entityClass
-     * @return
-     */
-    public static String getSelectColumns(Class<?> entityClass) {
-        EntityTable entityTable = getEntityTable(entityClass);
-        if (entityTable.getBaseSelect() != null) {
-            return entityTable.getBaseSelect();
-        }
-        List<EntityColumn> columnList = getColumns(entityClass);
-        StringBuilder selectBuilder = new StringBuilder();
-        boolean skipAlias = Map.class.isAssignableFrom(entityClass);
-        for (EntityColumn entityColumn : columnList) {
-            selectBuilder.append(entityColumn.getColumn());
-            if (!skipAlias && !entityColumn.getColumn().equalsIgnoreCase(entityColumn.getProperty())) {
-                //不等的时候分几种情况，例如`DESC`
-                if (entityColumn.getColumn().substring(1, entityColumn.getColumn().length() - 1).equalsIgnoreCase(entityColumn.getProperty())) {
-                    selectBuilder.append(",");
-                } else {
-                    selectBuilder.append(" AS ").append(entityColumn.getProperty()).append(",");
-                }
-            } else {
-                selectBuilder.append(",");
-            }
-        }
-        entityTable.setBaseSelect(selectBuilder.substring(0, selectBuilder.length() - 1));
-        return entityTable.getBaseSelect();
-    }
-
     public static List<EntityColumn> filterNotNull(Collection<EntityColumn> collection, Object object) {
         ExpressionEvaluator evaluator = new ExpressionEvaluator();
         return collection.stream().filter(p -> evaluator.evaluateBoolean(p.getProperty() + " != null", object)).collect(Collectors.toList());
@@ -99,17 +67,17 @@ public class EntityHelper {
     public static EntityTable resolveEntity(Class<?> entityClass) {
         //创建并缓存EntityTable
         EntityTable entityTable = null;
-        if (entityClass.isAnnotationPresent(Table.class)) {
-            Table table = entityClass.getAnnotation(Table.class);
-            if (!"".equals(table.name())) {
+        if (entityClass.isAnnotationPresent(Entity.class)) {
+            Entity table = entityClass.getAnnotation(Entity.class);
+            if (StringUtil.isNotBlank(table.tableName())) {
                 entityTable = new EntityTable(entityClass);
-                entityTable.setTable(table);
+                entityTable.setName(table.tableName().trim());
             }
-            if (!"".equals(table.catalog())) {
-                entityTable.setCatalog(table.catalog());
+            if (StringUtil.isNotBlank(table.catalog())) {
+                entityTable.setCatalog(table.catalog().trim());
             }
-            if (!"".equals(table.schema())) {
-                entityTable.setSchema(table.schema());
+            if (StringUtil.isNotBlank(table.schema())) {
+                entityTable.setSchema(table.schema().trim());
             }
         }
         if (entityTable == null) {
@@ -134,24 +102,17 @@ public class EntityHelper {
 
     protected static void processField(EntityTable entityTable, Field field) {
         //排除字段
-        if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers()) || field.isAnnotationPresent(Transient.class) || field.isAnnotationPresent(javax.persistence.Transient.class)) {
+        if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers()) || field.isAnnotationPresent(Transient.class)) {
             return;
         }
         EntityColumn entityColumn = new EntityColumn(entityTable);
-//        entityColumn.setUseJavaType(config.isUseJavaType());
-        if (field.isAnnotationPresent(Id.class)) {
-            entityColumn.setId(true);
-        }
         String columnName = null;
         if (field.isAnnotationPresent(Column.class)) {
-            Column column = field.getAnnotation(Column.class);
-            columnName = column.name();
-        }
-        if (field.isAnnotationPresent(org.lx.mybatis.annotation.Column.class)) {
-            org.lx.mybatis.annotation.Column columnType = field.getAnnotation(org.lx.mybatis.annotation.Column.class);
-            //是否为 blob 字段
+            Column columnType = field.getAnnotation(Column.class);
+            if (columnType.id()) {
+                entityColumn.setId(true);
+            }
             entityColumn.setBlob(columnType.isBlob());
-            //column可以起到别名的作用
             if (StringUtil.isEmpty(columnName) && StringUtil.isNotEmpty(columnType.name())) {
                 columnName = columnType.name();
             }
@@ -176,17 +137,11 @@ public class EntityHelper {
         if (field.getType().isPrimitive()) {
 //            logger.warn("通用 Mapper 警告信息: <[" + entityColumn + "]> 使用了基本类型，基本类型在动态 SQL 中由于存在默认值，因此任何时候都不等于 null，建议修改基本类型为对应的包装类型!");
         }
-//        //OrderBy
-//        processOrderBy(entityTable, field, entityColumn);
-//        //处理主键策略
-//        processKeyGenerator(entityTable, field, entityColumn);
         entityTable.getEntityClassColumns().add(entityColumn);
         if (entityColumn.isId()) {
             entityTable.getEntityClassPKColumns().add(entityColumn);
         }
     }
-
-
 
 
     public static List<EntityColumn> getColumns(List<EntityColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUnUpdatable) {

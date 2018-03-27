@@ -15,7 +15,7 @@ public @interface Column {
 
     String name() default "";
 
-    boolean unique() default false;// 是否唯一
+    boolean id() default false;// 是否唯一
 
     boolean nullable() default true;//是否允许为空
 

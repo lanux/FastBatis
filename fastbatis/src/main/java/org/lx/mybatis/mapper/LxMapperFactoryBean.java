@@ -1,5 +1,8 @@
 package org.lx.mybatis.mapper;
 
+import org.apache.ibatis.builder.IncompleteElementException;
+import org.apache.ibatis.builder.annotation.MethodResolver;
+import org.apache.ibatis.builder.xml.XMLStatementBuilder;
 import org.apache.ibatis.session.Configuration;
 import org.lx.mybatis.annotation.FastMapper;
 import org.lx.mybatis.builder.StatementProviderAnnotationBuilder;
@@ -9,6 +12,8 @@ import org.mybatis.spring.mapper.MapperFactoryBean;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * use like @MapperScan(basePackages = "org.lx.mapper",factoryBean = LxMapperFactoryBean.class)
@@ -32,13 +37,25 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
                 EntityHelper.resolveEntity(entityClass);
                 Configuration configuration = this.getSqlSession().getConfiguration();
                 Method[] methods = mapperInterface.getMethods();
-                StatementProviderAnnotationBuilder annotationBuilder = new StatementProviderAnnotationBuilder(configuration, mapperInterface);
+                StatementProviderAnnotationBuilder annotationBuilder = new StatementProviderAnnotationBuilder(configuration, mapperInterface, entityClass);
+                Collection<MethodResolver> incompleteMethods = configuration.getIncompleteMethods();
+                synchronized (incompleteMethods) {
+                    Iterator<MethodResolver> iter = incompleteMethods.iterator();
+                    while (iter.hasNext()) {
+                        try {
+                            iter.next().resolve();
+                            iter.remove();
+                        } catch (IncompleteElementException e) {
+                            // This method is still missing a resource
+                        }
+                    }
+                }
                 for (Method method : methods) {
                     String statementId = mapperInterface.getName() + "." + method.getName();
                     if (configuration.hasStatement(statementId) || method.isBridge()) {
                         continue;
                     }
-                    annotationBuilder.parseStatement(method,entityClass);
+                    annotationBuilder.parseStatement(method);
                 }
             }
         }

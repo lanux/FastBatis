@@ -33,15 +33,17 @@ public class StatementProviderAnnotationBuilder {
     private final Configuration configuration;
     private final MapperBuilderAssistant assistant;
     private final Class<?> type;
-
+    private Class<?> entityClass;
     private final Map<Class, Object> providerMap = new HashMap<>();
 
-    public StatementProviderAnnotationBuilder(Configuration configuration, Class<?> type) {
+    public StatementProviderAnnotationBuilder(Configuration configuration, Class<?> type, Class<?> entityClass) {
         String resource = type.getName().replace('.', '/') + ".java (best guess)";
         this.assistant = new MapperBuilderAssistant(configuration, resource);
         assistant.setCurrentNamespace(type.getName());
         this.configuration = configuration;
         this.type = type;
+        this.entityClass = entityClass;
+        parseResultMap();
     }
 
 
@@ -115,7 +117,7 @@ public class StatementProviderAnnotationBuilder {
         return null;
     }
 
-    public void parseStatement(Method method, Class<?> entityClass) {
+    public void parseStatement(Method method) {
         StatementProvider annotation = method.getAnnotation(StatementProvider.class);
         if (annotation == null) return;
         Class<?> parameterTypeClass = getParameterType(method);
@@ -140,17 +142,17 @@ public class StatementProviderAnnotationBuilder {
             if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
                 // first check for SelectKey annotation - that overrides everything else
                 SelectKey selectKey = method.getAnnotation(SelectKey.class);
-                String defaultValue = entityTable.getKeyProperties();
-                String keyColumns = entityTable.getKeyColumns();
+                String defaultKeyProperties = entityTable.getKeyProperties();
+                String defaultKeyColumns = entityTable.getKeyColumns();
                 if (selectKey != null) {
-                    keyGenerator = handleSelectKeyAnnotation(selectKey, mappedStatementId, getParameterType(method), languageDriver);
-                    keyProperty = StringUtil.blankToDefault(selectKey.keyProperty(), "");
+                    keyGenerator = handleSelectKeyAnnotation(selectKey, mappedStatementId, getParameterType(method), languageDriver, defaultKeyProperties, defaultKeyColumns);
+                    keyProperty = StringUtil.blankToDefault(selectKey.keyProperty(), defaultKeyProperties);
                 } else if (options == null) {
                     keyGenerator = configuration.isUseGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
                 } else {
                     keyGenerator = options.useGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
-                    keyProperty = StringUtil.blankToDefault(options.keyProperty(), "");
-                    keyColumn = StringUtil.blankToDefault(options.keyColumn(), "");
+                    keyProperty = StringUtil.blankToDefault(options.keyProperty(), defaultKeyProperties);
+                    keyColumn = StringUtil.blankToDefault(options.keyColumn(), defaultKeyColumns);
                 }
             } else {
                 keyGenerator = NoKeyGenerator.INSTANCE;
@@ -184,9 +186,6 @@ public class StatementProviderAnnotationBuilder {
             } else if (isSelect) {
                 resultMapId = parseResultMap(method);
             }
-
-            org.apache.ibatis.mapping.ResultMap resultMap = entityTable.getResultMap(configuration);
-
 
             assistant.addMappedStatement(
                     mappedStatementId,
@@ -438,12 +437,12 @@ public class StatementProviderAnnotationBuilder {
         return args == null ? new Arg[0] : args.value();
     }
 
-    private KeyGenerator handleSelectKeyAnnotation(SelectKey selectKeyAnnotation, String baseStatementId, Class<?> parameterTypeClass, LanguageDriver languageDriver) {
+    private KeyGenerator handleSelectKeyAnnotation(SelectKey selectKeyAnnotation, String baseStatementId, Class<?> parameterTypeClass, LanguageDriver languageDriver, String defaultKeyProperties, String defaultKeyColumns) {
         String id = baseStatementId + SelectKeyGenerator.SELECT_KEY_SUFFIX;
         Class<?> resultTypeClass = selectKeyAnnotation.resultType();
         StatementType statementType = selectKeyAnnotation.statementType();
-        String keyProperty = selectKeyAnnotation.keyProperty();
-        String keyColumn = selectKeyAnnotation.keyColumn();
+        String keyProperty = StringUtil.blankToDefault(selectKeyAnnotation.keyProperty(), defaultKeyProperties);
+        String keyColumn = StringUtil.blankToDefault(selectKeyAnnotation.keyColumn(), defaultKeyColumns);
         boolean executeBefore = selectKeyAnnotation.before();
 
         // defaults
@@ -471,4 +470,12 @@ public class StatementProviderAnnotationBuilder {
         return answer;
     }
 
+    public void parseResultMap() {
+        String id = "BaseResultMap";
+        if (!configuration.hasResultMap(assistant.applyCurrentNamespace(id, false))) {
+            EntityTable entityTable = EntityHelper.getEntityTable(entityClass);
+            List<ResultMapping> resultMappings = entityTable.getResultMappings(configuration);
+            assistant.addResultMap(id, entityClass, null, null, resultMappings, true);
+        }
+    }
 }
