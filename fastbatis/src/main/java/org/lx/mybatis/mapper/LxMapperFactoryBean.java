@@ -46,7 +46,7 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
                             iter.next().resolve();
                             iter.remove();
                         } catch (IncompleteElementException e) {
-                            // This method is still missing a resource
+                            throw e;
                         }
                     }
                 }
