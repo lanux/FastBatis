@@ -1,8 +1,6 @@
 package org.lx.mybatis.mapper;
 
-import org.apache.ibatis.builder.IncompleteElementException;
 import org.apache.ibatis.builder.annotation.MethodResolver;
-import org.apache.ibatis.builder.xml.XMLStatementBuilder;
 import org.apache.ibatis.session.Configuration;
 import org.lx.mybatis.annotation.FastMapper;
 import org.lx.mybatis.builder.StatementProviderAnnotationBuilder;
@@ -16,14 +14,14 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * use like @MapperScan(basePackages = "org.lx.mapper",factoryBean = LxMapperFactoryBean.class)
+ * use like @MapperScan(basePackages = "org.lx.mapper",factoryBean = FastMapperFactoryBean.class)
  */
-public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
+public class FastMapperFactoryBean<T> extends MapperFactoryBean<T> {
 
-    public LxMapperFactoryBean() {
+    public FastMapperFactoryBean() {
     }
 
-    public LxMapperFactoryBean(Class<T> mapperInterface) {
+    public FastMapperFactoryBean(Class<T> mapperInterface) {
         super(mapperInterface);
     }
 
@@ -42,12 +40,8 @@ public class LxMapperFactoryBean<T> extends MapperFactoryBean<T> {
                 synchronized (incompleteMethods) {
                     Iterator<MethodResolver> iter = incompleteMethods.iterator();
                     while (iter.hasNext()) {
-                        try {
-                            iter.next().resolve();
-                            iter.remove();
-                        } catch (IncompleteElementException e) {
-                            throw e;
-                        }
+                        iter.next().resolve();
+                        iter.remove();
                     }
                 }
                 for (Method method : methods) {
