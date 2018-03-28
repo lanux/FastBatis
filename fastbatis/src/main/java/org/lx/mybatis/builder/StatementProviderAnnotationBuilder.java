@@ -21,7 +21,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 import org.lx.mybatis.annotation.StatementProvider;
 import org.lx.mybatis.entity.EntityTable;
-import org.lx.mybatis.helper.EntityHelper;
+import org.lx.mybatis.helper.EntityHolder;
 import org.lx.mybatis.util.StringUtil;
 
 import java.lang.reflect.*;
@@ -122,7 +122,7 @@ public class StatementProviderAnnotationBuilder {
         if (annotation == null) return;
         Class<?> parameterTypeClass = getParameterType(method);
         LanguageDriver languageDriver = getLanguageDriver(method);
-        EntityTable entityTable = EntityHelper.getEntityTable(entityClass);
+        EntityTable entityTable = EntityHolder.getEntityTable(entityClass);
         SqlSource sqlSource = getSqlSourceFromAnnotations(method, entityClass, parameterTypeClass, languageDriver);
         if (sqlSource != null) {
             Options options = method.getAnnotation(Options.class);
@@ -473,7 +473,7 @@ public class StatementProviderAnnotationBuilder {
     public void parseResultMap() {
         String id = "BaseResultMap";
         if (!configuration.hasResultMap(assistant.applyCurrentNamespace(id, false))) {
-            EntityTable entityTable = EntityHelper.getEntityTable(entityClass);
+            EntityTable entityTable = EntityHolder.getEntityTable(entityClass);
             List<ResultMapping> resultMappings = entityTable.getResultMappings(configuration);
             assistant.addResultMap(id, entityClass, null, null, resultMappings, true);
         }

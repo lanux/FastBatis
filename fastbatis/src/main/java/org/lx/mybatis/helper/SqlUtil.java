@@ -144,7 +144,7 @@ public class SqlUtil {
      * @return
      */
     public static String getAllColumns(Class<?> entityClass) {
-        return getAllColumns(EntityHelper.getEntityTable(entityClass));
+        return getAllColumns(EntityHolder.getEntityTable(entityClass));
     }
 
     /**

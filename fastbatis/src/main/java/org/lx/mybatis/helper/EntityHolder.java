@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class EntityHelper {
+public class EntityHolder {
 
     /**
      * 实体类 => 表对象

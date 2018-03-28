@@ -1,6 +1,6 @@
 package org.lx.mybatis.entity;
 
-import org.lx.mybatis.helper.EntityHelper;
+import org.lx.mybatis.helper.EntityHolder;
 import org.lx.mybatis.util.StringUtil;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class Condition {
 
     public Condition(Class<?> entityClass) {
         this.entityClass = entityClass;
-        table = EntityHelper.getEntityTable(entityClass);
+        table = EntityHolder.getEntityTable(entityClass);
         propertyMap = table.getPropertyMap();
     }
 

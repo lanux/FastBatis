@@ -21,8 +21,6 @@ public class Criterion {
 
     private boolean listValue;
 
-    private String jdbcType;
-
     protected Criterion() {
     }
 
@@ -30,37 +28,28 @@ public class Criterion {
         this(column, condition, false);
     }
 
-    protected Criterion(String column, String condition, Object value, String typeHandler) {
-        this(column, condition, value, typeHandler, false);
-    }
-
     protected Criterion(String column, String condition, Object value) {
-        this(column, condition, value, null, false);
+        this(column, condition, value, false);
     }
 
-    protected Criterion(String column, String condition, Object value, Object secondValue, String typeHandler) {
-        this(column, condition, value, secondValue, typeHandler, false);
-    }
 
     protected Criterion(String column, String condition, Object value, Object secondValue) {
-        this(column, condition, value, secondValue, null, false);
+        this(column, condition, value, secondValue, false);
     }
 
     protected Criterion(String column, String condition, boolean isOr) {
         super();
         this.column = column;
         this.condition = condition;
-        this.jdbcType = null;
         this.noValue = true;
         this.andOr = isOr ? "OR" : this.andOr;
     }
 
-    protected Criterion(String column, String condition, Object value, String jdbcType, boolean isOr) {
+    protected Criterion(String column, String condition, Object value, boolean isOr) {
         super();
         this.column = column;
         this.condition = condition;
         this.value = value;
-        this.jdbcType = jdbcType;
         this.andOr = isOr ? "OR" : this.andOr;
         if (value instanceof Collection) {
             this.listValue = true;
@@ -69,24 +58,18 @@ public class Criterion {
         }
     }
 
-
-    protected Criterion(String column, String condition, Object value, boolean isOr) {
-        this(column, condition, value, null, isOr);
-    }
-
-    protected Criterion(String column, String condition, Object value, Object secondValue, String jdbcType, boolean isOr) {
+    protected Criterion(String column, String condition, Object value, Object secondValue, boolean isOr) {
         super();
         this.column = column;
         this.condition = condition;
         this.value = value;
         this.secondValue = secondValue;
-        this.jdbcType = jdbcType;
-        this.betweenValue = true;
-        this.andOr = isOr ? "or" : "and";
-    }
-
-    protected Criterion(String column, String condition, Object value, Object secondValue, boolean isOr) {
-        this(column, condition, value, secondValue, null, isOr);
+        this.andOr = isOr ? "OR" : this.andOr;
+        if (value instanceof Collection) {
+            this.listValue = true;
+        } else {
+            this.singleValue = true;
+        }
     }
 
     public static Criterion instance() {
@@ -138,11 +121,6 @@ public class Criterion {
         return this;
     }
 
-    public Criterion setJdbcType(String jdbcType) {
-        this.jdbcType = jdbcType;
-        return this;
-    }
-
     public String getColumn() {
         return column;
     }
@@ -178,11 +156,7 @@ public class Criterion {
     public boolean isListValue() {
         return listValue;
     }
-
-    public String getJdbcType() {
-        return jdbcType;
-    }
-
+    
     public String columnCondition() {
         return this.column + " " + this.condition;
     }

@@ -4,15 +4,15 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.jdbc.SQL;
 import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
-import org.lx.mybatis.helper.EntityHelper;
+import org.lx.mybatis.helper.EntityHolder;
 import org.lx.mybatis.helper.SqlUtil;
 
 import java.util.List;
 
 public class StaticSqlProvider {
     public String insert(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
-        List<EntityColumn> columns = EntityHelper.getColumns(entityTable.getEntityClassColumns(), false, true, false);
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
+        List<EntityColumn> columns = EntityHolder.getColumns(entityTable.getEntityClassColumns(), false, true, false);
         return new SQL() {{
             INSERT_INTO(entityTable.getName());
             VALUES(SqlUtil.getColumnNames(columns), SqlUtil.getValuesHolder(columns));
@@ -21,9 +21,9 @@ public class StaticSqlProvider {
 
 
     public String insertSelective(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
-        List<EntityColumn> columns = EntityHelper.getColumns(entityTable.getEntityClassColumns(), false, true, false);
-        List<EntityColumn> select = EntityHelper.filterNotNull(columns, object);
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
+        List<EntityColumn> columns = EntityHolder.getColumns(entityTable.getEntityClassColumns(), false, true, false);
+        List<EntityColumn> select = EntityHolder.filterNotNull(columns, object);
         return new SQL() {{
             INSERT_INTO(entityTable.getName());
             VALUES(SqlUtil.getColumnNames(select), SqlUtil.getValuesHolder(select));
@@ -37,10 +37,10 @@ public class StaticSqlProvider {
      * @return
      */
     public String deleteSelective(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
         return new SQL() {{
             DELETE_FROM(entityTable.getName());
-            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
+            List<EntityColumn> select = EntityHolder.filterNotNull(entityTable.getEntityClassColumns(), object);
             WHERE(SqlUtil.getEqualsHolder(select));
         }}.toString();
     }
@@ -52,7 +52,7 @@ public class StaticSqlProvider {
      */
     public String deleteByPrimaryKey(ProviderContext providerContext) {
         // 读取泛型对象
-        EntityTable entityTable = EntityHelper.getEntityTable(providerContext.getMapperType());
+        EntityTable entityTable = EntityHolder.getEntityTable(providerContext.getMapperType());
         return new SQL() {{
             DELETE_FROM(entityTable.getName());
             WHERE(SqlUtil.getEqualsHolder(entityTable.getEntityClassPKColumns()));
@@ -65,7 +65,7 @@ public class StaticSqlProvider {
      * @param object
      */
     public String selectByPrimaryKey(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
         return new SQL() {{
             SELECT(SqlUtil.getAllColumns(entityTable));
             FROM(entityTable.getName());
@@ -80,11 +80,11 @@ public class StaticSqlProvider {
      * @return
      */
     public String selectBySelective(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
         return new SQL() {{
             SELECT(SqlUtil.getAllColumns(entityTable));
             FROM(entityTable.getName());
-            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
+            List<EntityColumn> select = EntityHolder.filterNotNull(entityTable.getEntityClassColumns(), object);
             WHERE(SqlUtil.getEqualsHolder(select));
         }}.toString();
     }
@@ -97,8 +97,8 @@ public class StaticSqlProvider {
      * @return
      */
     public String countBySelective(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
-        List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
+        List<EntityColumn> select = EntityHolder.filterNotNull(entityTable.getEntityClassColumns(), object);
         return new SQL() {{
             SELECT("COUNT(1)");
             FROM(entityTable.getName());
@@ -113,7 +113,7 @@ public class StaticSqlProvider {
      * @param object
      */
     public String updateByPrimaryKey(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
         return new SQL() {{
             UPDATE(entityTable.getName());
             for (EntityColumn column : entityTable.getEntityClassColumns()) {
@@ -132,10 +132,10 @@ public class StaticSqlProvider {
      * @return
      */
     public String updateSelectiveByPrimaryKey(Object object) {
-        EntityTable entityTable = EntityHelper.getEntityTable(object.getClass());
+        EntityTable entityTable = EntityHolder.getEntityTable(object.getClass());
         return new SQL() {{
             UPDATE(entityTable.getName());
-            List<EntityColumn> select = EntityHelper.filterNotNull(entityTable.getEntityClassColumns(), object);
+            List<EntityColumn> select = EntityHolder.filterNotNull(entityTable.getEntityClassColumns(), object);
             for (EntityColumn column : select) {
                 SET(column.getColumnEqualsHolder());
             }

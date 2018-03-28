@@ -143,8 +143,9 @@ public class XmlSqlUtil {
     }
 
 
-    public static String whereClause() {
-        return "\n<if test=\"_parameter != null\">" +
+    public static String whereClause(String paramName) {
+        paramName = StringUtil.isNotBlank(paramName)?paramName:"_parameter";
+        return "\n<if test=\""+paramName+" != null\">" +
                 "<where>\n" +
                 "  <foreach collection=\"_parameter.oredCriteria\" item=\"criteria\">\n" +
                 "    <if test=\"criteria.criteria!=null and criteria.criteria.size > 0\">\n" +
