@@ -1,6 +1,6 @@
 package org.lx.mybatis.entity;
 
-import org.lx.mybatis.helper.EntityHolder;
+import org.lx.mybatis.helper.EntityTables;
 import org.lx.mybatis.util.StringUtil;
 
 import java.util.ArrayList;
@@ -18,11 +18,15 @@ public class Condition {
 
     protected EntityTable table;
 
-    protected Map<String, EntityColumn> propertyMap;//属性和列对应
+    protected Map<String, TableColumn> propertyMap;//属性和列对应
+
+    protected boolean excludeBlob = false;
+
+    protected List<OrderBy> orderBys = new ArrayList<>();
 
     public Condition(Class<?> entityClass) {
         this.entityClass = entityClass;
-        table = EntityHolder.getEntityTable(entityClass);
+        table = EntityTables.getEntityTable(entityClass);
         propertyMap = table.getPropertyMap();
     }
 
@@ -35,7 +39,7 @@ public class Condition {
         return this;
     }
 
-    private Criteria or() {
+    protected Criteria or() {
         Criteria criteria = createCriteriaInternal();
         criteria.setAndOr("or");
         oredCriteria.add(criteria);
@@ -76,6 +80,33 @@ public class Condition {
     public List<Criteria> getOredCriteria() {
         return oredCriteria;
     }
+
+    public Condition orderBy(String property) {
+        orderBy(property, false);
+        return this;
+    }
+
+    public Condition orderBy(String property, Boolean descending) {
+        this.orderBys.add(new OrderBy(property, descending));
+        return this;
+    }
+
+    public boolean isExcludeBlob() {
+        return excludeBlob;
+    }
+
+    public void setExcludeBlob(boolean excludeBlob) {
+        this.excludeBlob = excludeBlob;
+    }
+
+    public void setOrderBys(List<OrderBy> orderBys) {
+        this.orderBys = orderBys;
+    }
+
+    public List<OrderBy> getOrderBys() {
+        return orderBys;
+    }
+
 
     public class Criteria {
         protected List<Criterion> criteria = new ArrayList<>();
@@ -275,9 +306,9 @@ public class Condition {
         }
 
         //属性和列对应
-        protected Map<String, EntityColumn> propertyMap;
+        protected Map<String, TableColumn> propertyMap;
 
-        protected Criteria(Map<String, EntityColumn> propertyMap) {
+        protected Criteria(Map<String, TableColumn> propertyMap) {
             super();
             this.propertyMap = propertyMap;
         }

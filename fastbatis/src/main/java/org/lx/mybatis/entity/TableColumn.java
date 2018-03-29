@@ -7,8 +7,7 @@ import org.lx.mybatis.util.StringUtil;
 /**
  * 数据库表对应的列
  */
-public class EntityColumn {
-    private EntityTable table;
+public class TableColumn {
     private String property;
     private String column;
     private Class<?> javaType;
@@ -20,11 +19,7 @@ public class EntityColumn {
     private boolean insertable = true;
     private boolean updatable = true;
 
-    public EntityColumn() {
-    }
-
-    public EntityColumn(EntityTable table) {
-        this.table = table;
+    public TableColumn() {
     }
 
     /**
@@ -94,11 +89,6 @@ public class EntityColumn {
         } else if (this.typeHandler != null) {
             sb.append(",typeHandler=");
             sb.append(this.typeHandler.getCanonicalName());
-        } else if (!this.javaType.isArray()) {
-            //当类型为数组时，不设置javaType#103
-            //3.4.0 以前的 mybatis 无法获取父类中泛型的 javaType，所以如果使用低版本，就需要设置 useJavaType = true
-            sb.append(",javaType=");
-            sb.append(javaType.getCanonicalName());
         }
         sb.append("}");
         if (StringUtil.isNotEmpty(separator)) {
@@ -156,14 +146,6 @@ public class EntityColumn {
 
     public void setProperty(String property) {
         this.property = property;
-    }
-
-    public EntityTable getTable() {
-        return table;
-    }
-
-    public void setTable(EntityTable table) {
-        this.table = table;
     }
 
     public Class<? extends TypeHandler<?>> getTypeHandler() {

@@ -14,4 +14,8 @@ public interface SelectMapper<T> {
     @ResultMap("BaseResultMap")
     T selectByPrimaryKey(Object key);
 
+    @SelectProvider(type = StaticSqlProvider.class, method = "selectExcludeBlobByPrimaryKey")
+    @Options(fetchSize = 1)
+    @ResultMap("BaseResultMap")
+    T selectExcludeBlobByPrimaryKey(Object key);
 }

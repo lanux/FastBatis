@@ -5,7 +5,7 @@ import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandler;
-import org.lx.mybatis.MapperException;
+import org.lx.mybatis.FastMapperException;
 import org.lx.mybatis.helper.SqlUtil;
 import org.lx.mybatis.util.StringUtil;
 
@@ -23,12 +23,11 @@ import java.util.stream.Collectors;
  */
 public class EntityTable {
     public static final Pattern DELIMITER = Pattern.compile("^[`\\[\"]?(.*?)[`\\]\"]?$");
-    protected Map<String, EntityColumn> propertyMap;
+    protected Map<String, TableColumn> propertyMap;
     private String name;
     private String catalog = "";
     private String schema = "";
-    private List<EntityColumn> entityClassColumns;
-    private List<EntityColumn> entityClassPKColumns;
+    private List<TableColumn> columns;
 
     private Class<?> entityClass;
 
@@ -43,30 +42,30 @@ public class EntityTable {
      * @return
      */
     public List<ResultMapping> getResultMappings(Configuration configuration) {
-        if (entityClassColumns == null || entityClassColumns.size() == 0) {
+        if (columns == null || columns.size() == 0) {
             return null;
         }
         List<ResultMapping> resultMappings = new ArrayList<ResultMapping>();
-        for (EntityColumn entityColumn : entityClassColumns) {
-            String column = entityColumn.getColumn();
+        for (TableColumn tableColumn : columns) {
+            String column = tableColumn.getColumn();
             //去掉可能存在的分隔符
             Matcher matcher = DELIMITER.matcher(column);
             if (matcher.find()) {
                 column = matcher.group(1);
             }
-            ResultMapping.Builder builder = new ResultMapping.Builder(configuration, entityColumn.getProperty(), column, entityColumn.getJavaType());
-            if (entityColumn.getJdbcType() != null) {
-                builder.jdbcType(entityColumn.getJdbcType());
+            ResultMapping.Builder builder = new ResultMapping.Builder(configuration, tableColumn.getProperty(), column, tableColumn.getJavaType());
+            if (tableColumn.getJdbcType() != null) {
+                builder.jdbcType(tableColumn.getJdbcType());
             }
-            if (entityColumn.getTypeHandler() != null) {
+            if (tableColumn.getTypeHandler() != null) {
                 try {
-                    builder.typeHandler(getInstance(entityColumn.getJavaType(), entityColumn.getTypeHandler()));
+                    builder.typeHandler(getInstance(tableColumn.getJavaType(), tableColumn.getTypeHandler()));
                 } catch (Exception e) {
-                    throw new MapperException(e);
+                    throw new FastMapperException(e);
                 }
             }
             List<ResultFlag> flags = new ArrayList<ResultFlag>();
-            if (entityColumn.isId()) {
+            if (tableColumn.isId()) {
                 flags.add(ResultFlag.ID);
             }
             builder.flags(flags);
@@ -80,8 +79,8 @@ public class EntityTable {
      * 初始化 - Condition 会使用
      */
     public void initPropertyMap() {
-        propertyMap = new HashMap<String, EntityColumn>(getEntityClassColumns().size());
-        for (EntityColumn column : getEntityClassColumns()) {
+        propertyMap = new HashMap<String, TableColumn>(getColumns().size());
+        for (TableColumn column : getColumns()) {
             propertyMap.put(column.getProperty(), column);
         }
     }
@@ -125,24 +124,21 @@ public class EntityTable {
         return entityClass;
     }
 
-    public List<EntityColumn> getEntityClassColumns() {
-        return entityClassColumns;
+    public List<TableColumn> getColumns() {
+        return columns;
     }
 
-    public void setEntityClassColumns(List<EntityColumn> entityClassColumns) {
-        this.entityClassColumns = entityClassColumns;
+    public void setColumns(List<TableColumn> columns) {
+        this.columns = columns;
     }
 
-    public List<EntityColumn> getEntityClassPKColumns() {
-        return entityClassPKColumns;
+    public List<TableColumn> getKeyColumns() {
+        return columns.stream().filter(TableColumn::isId).collect(Collectors.toList());
     }
 
-    public void setEntityClassPKColumns(List<EntityColumn> entityClassPKColumns) {
-        this.entityClassPKColumns = entityClassPKColumns;
-    }
 
-    public String getKeyColumns() {
-        return getEntityClassPKColumns().stream().map(p -> p.getColumn()).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+    public String getKeyColumnNames() {
+        return columns.stream().filter(TableColumn::isId).map(p -> p.getColumn()).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
     }
 
     /**
@@ -151,7 +147,7 @@ public class EntityTable {
      * @return
      */
     public String getKeyProperties() {
-        return getEntityClassPKColumns().stream().map(p -> p.getProperty()).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+        return columns.stream().filter(TableColumn::isId).map(p -> p.getProperty()).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
     }
 
 
@@ -173,7 +169,7 @@ public class EntityTable {
         return "";
     }
 
-    public Map<String, EntityColumn> getPropertyMap() {
+    public Map<String, TableColumn> getPropertyMap() {
         return propertyMap;
     }
 

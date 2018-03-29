@@ -14,6 +14,10 @@ public interface SelectSelectiveMapper<T> {
     @SelectProvider(type = StaticSqlProvider.class, method = "selectBySelective")
     List<T> selectBySelective(T t);
 
+    @ResultMap("BaseResultMap")
+    @SelectProvider(type = StaticSqlProvider.class, method = "selectExcludeBlobBySelective")
+    List<T> selectNoBLobBySelective(T t);
+
     @SelectProvider(type = StaticSqlProvider.class, method = "countBySelective")
     int countBySelective(T t);
 }

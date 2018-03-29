@@ -5,8 +5,8 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.UnknownTypeHandler;
 import org.lx.mybatis.annotation.Column;
 import org.lx.mybatis.annotation.Entity;
-import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
+import org.lx.mybatis.entity.TableColumn;
 import org.lx.mybatis.util.StringUtil;
 
 import java.beans.Transient;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class EntityHolder {
+public class EntityTables {
 
     /**
      * 实体类 => 表对象
@@ -32,9 +32,7 @@ public class EntityHolder {
     public static EntityTable getEntityTable(Class<?> entityClass) {
         EntityTable entityTable = entityTableMap.get(entityClass);
         if (entityTable == null) {
-            synchronized (entityTableMap) {
-                entityTableMap.put(entityClass, entityTable = resolveEntity(entityClass));
-            }
+            entityTableMap.put(entityClass, entityTable = resolveEntity(entityClass));
         }
         return entityTable;
     }
@@ -45,8 +43,8 @@ public class EntityHolder {
      * @param entityClass
      * @return
      */
-    public static List<EntityColumn> getColumns(Class<?> entityClass) {
-        return getEntityTable(entityClass).getEntityClassColumns();
+    public static List<TableColumn> getColumns(Class<?> entityClass) {
+        return getEntityTable(entityClass).getColumns();
     }
 
     /**
@@ -55,11 +53,11 @@ public class EntityHolder {
      * @param entityClass
      * @return
      */
-    public static List<EntityColumn> getPKColumns(Class<?> entityClass) {
-        return getEntityTable(entityClass).getEntityClassPKColumns();
+    public static List<TableColumn> getPKColumns(Class<?> entityClass) {
+        return getEntityTable(entityClass).getKeyColumns();
     }
 
-    public static List<EntityColumn> filterNotNull(Collection<EntityColumn> collection, Object object) {
+    public static List<TableColumn> filterNotNull(Collection<TableColumn> collection, Object object) {
         ExpressionEvaluator evaluator = new ExpressionEvaluator();
         return collection.stream().filter(p -> evaluator.evaluateBoolean(p.getProperty() + " != null", object)).collect(Collectors.toList());
     }
@@ -85,15 +83,10 @@ public class EntityHolder {
             //驼峰转下划线
             entityTable.setName(StringUtil.camelhumpToUnderline(entityClass.getSimpleName()));
         }
-        entityTable.setEntityClassColumns(new LinkedList<>());
-        entityTable.setEntityClassPKColumns(new LinkedList<>());
+        entityTable.setColumns(new LinkedList<>());
         //处理所有列
         for (Field field : entityClass.getDeclaredFields()) {
             processField(entityTable, field);
-        }
-        //当pk.size=0的时候使用所有列作为主键
-        if (entityTable.getEntityClassPKColumns().size() == 0) {
-            entityTable.setEntityClassPKColumns(entityTable.getEntityClassColumns());
         }
         entityTable.initPropertyMap();
         entityTableMap.put(entityClass, entityTable);
@@ -105,46 +98,42 @@ public class EntityHolder {
         if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers()) || field.isAnnotationPresent(Transient.class)) {
             return;
         }
-        EntityColumn entityColumn = new EntityColumn(entityTable);
+        TableColumn tableColumn = new TableColumn();
         String columnName = null;
         if (field.isAnnotationPresent(Column.class)) {
             Column columnType = field.getAnnotation(Column.class);
             if (columnType.id()) {
-                entityColumn.setId(true);
+                tableColumn.setId(true);
             }
-            entityColumn.setBlob(columnType.isBlob());
+            tableColumn.setBlob(columnType.isBlob());
             if (StringUtil.isEmpty(columnName) && StringUtil.isNotEmpty(columnType.name())) {
                 columnName = columnType.name();
             }
             if (columnType.jdbcType() != JdbcType.UNDEFINED) {
-                entityColumn.setJdbcType(columnType.jdbcType());
+                tableColumn.setJdbcType(columnType.jdbcType());
             }
             if (columnType.typeHandler() != UnknownTypeHandler.class) {
-                entityColumn.setTypeHandler(columnType.typeHandler());
+                tableColumn.setTypeHandler(columnType.typeHandler());
+            }
+            if (columnType.reserved()) {
+                tableColumn.setColumn(columnType.delimiter() + columnName + columnType.delimiter());
             }
         }
         //列名
         if (StringUtil.isEmpty(columnName)) {
             columnName = StringUtil.camelhumpToUnderline(field.getName());
         }
-        //自动处理关键字
-//        if (SqlReservedWords.containsWord(columnName)) {
-//            columnName = MessageFormat.format(config.getWrapKeyword(), columnName);
-//        }
-        entityColumn.setProperty(field.getName());
-        entityColumn.setColumn(columnName);
-        entityColumn.setJavaType(field.getType());
+        tableColumn.setProperty(field.getName());
+        tableColumn.setColumn(columnName);
+        tableColumn.setJavaType(field.getType());
         if (field.getType().isPrimitive()) {
-//            logger.warn("通用 Mapper 警告信息: <[" + entityColumn + "]> 使用了基本类型，基本类型在动态 SQL 中由于存在默认值，因此任何时候都不等于 null，建议修改基本类型为对应的包装类型!");
+//            logger.warn("通用 Mapper 警告信息: <[" + tableColumn + "]> 使用了基本类型，基本类型在动态 SQL 中由于存在默认值，因此任何时候都不等于 null，建议修改基本类型为对应的包装类型!");
         }
-        entityTable.getEntityClassColumns().add(entityColumn);
-        if (entityColumn.isId()) {
-            entityTable.getEntityClassPKColumns().add(entityColumn);
-        }
+        entityTable.getColumns().add(tableColumn);
     }
 
 
-    public static List<EntityColumn> getColumns(List<EntityColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUnUpdatable) {
+    public static List<TableColumn> getColumns(List<TableColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUnUpdatable) {
         if (columnList != null) {
             return columnList.stream().filter(p -> excludeBlob ? p.isBlob() : true)
                     .filter(p -> excludeUnInsertable ? p.isInsertable() : true)

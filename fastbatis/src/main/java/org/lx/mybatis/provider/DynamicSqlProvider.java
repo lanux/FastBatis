@@ -1,9 +1,9 @@
 package org.lx.mybatis.provider;
 
 import org.lx.mybatis.builder.StatementProviderContext;
-import org.lx.mybatis.entity.EntityColumn;
 import org.lx.mybatis.entity.EntityTable;
-import org.lx.mybatis.helper.EntityHolder;
+import org.lx.mybatis.entity.TableColumn;
+import org.lx.mybatis.helper.EntityTables;
 import org.lx.mybatis.helper.SqlUtil;
 import org.lx.mybatis.helper.XmlSqlUtil;
 
@@ -18,8 +18,8 @@ public class DynamicSqlProvider {
      */
     public String insert(StatementProviderContext object) {
         StringBuilder sb = new StringBuilder();
-        EntityTable entityTable = EntityHolder.getEntityTable(object.getEntityClass());
-        List<EntityColumn> columns = EntityHolder.getColumns(entityTable.getEntityClassColumns(), false, true, false);
+        EntityTable entityTable = EntityTables.getEntityTable(object.getEntityClass());
+        List<TableColumn> columns = EntityTables.getColumns(entityTable.getColumns(), false, true, false);
         sb.append(SqlUtil.insertIntoTable(entityTable.getName()));
         sb.append("(");
         sb.append(SqlUtil.getColumnNames(columns));
@@ -37,8 +37,8 @@ public class DynamicSqlProvider {
      */
     public String batchInsert(StatementProviderContext context) {
         StringBuilder sb = new StringBuilder();
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
-        List<EntityColumn> columns = EntityHolder.getColumns(entityTable.getEntityClassColumns(), false, true, false);
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
+        List<TableColumn> columns = EntityTables.getColumns(entityTable.getColumns(), false, true, false);
         sb.append(SqlUtil.insertIntoTable(entityTable.getName()));
         sb.append("(");
         sb.append(SqlUtil.getColumnNames(columns));
@@ -53,8 +53,8 @@ public class DynamicSqlProvider {
      */
     public String insertSelective(StatementProviderContext context) {
         StringBuilder sb = new StringBuilder();
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
-        List<EntityColumn> columns = EntityHolder.getColumns(entityTable.getEntityClassColumns(), false, true, false);
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
+        List<TableColumn> columns = EntityTables.getColumns(entityTable.getColumns(), false, true, false);
         sb.append(SqlUtil.insertIntoTable(entityTable.getName()));
         sb.append("(");
         sb.append(SqlUtil.getColumnNames(columns));
@@ -71,10 +71,10 @@ public class DynamicSqlProvider {
      * @return
      */
     public String deleteBySelective(Class clazz) {
-        EntityTable entityTable = EntityHolder.getEntityTable(clazz);
+        EntityTable entityTable = EntityTables.getEntityTable(clazz);
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.deleteFromTable(entityTable.getName()));
-        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getEntityClassColumns()));
+        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getColumns()));
         return sb.toString();
     }
 
@@ -84,10 +84,10 @@ public class DynamicSqlProvider {
      * @param context
      */
     public String deleteByPrimaryKey(StatementProviderContext context) {
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.deleteFromTable(entityTable.getName()));
-        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getEntityClassPKColumns()));
+        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getKeyColumns()));
         return sb.toString();
     }
 
@@ -97,7 +97,7 @@ public class DynamicSqlProvider {
      * @param context
      */
     public String deleteByCondition(StatementProviderContext context) {
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.deleteFromTable(entityTable.getName()));
         sb.append(XmlSqlUtil.whereClause(null));
@@ -112,12 +112,12 @@ public class DynamicSqlProvider {
      * @return
      */
     public String selectBySelective(StatementProviderContext context) {
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         sb.append(SqlUtil.getAllColumns(entityTable));
         sb.append(SqlUtil.fromTable(entityTable.getName()));
-        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getEntityClassColumns()));
+        sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getColumns()));
         return sb.toString();
     }
 
@@ -128,7 +128,7 @@ public class DynamicSqlProvider {
      * @return
      */
     public String selectByCondition(StatementProviderContext context) {
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         sb.append(SqlUtil.getAllColumns(entityTable));
@@ -136,6 +136,7 @@ public class DynamicSqlProvider {
         sb.append(XmlSqlUtil.whereClause(null));
         return sb.toString();
     }
+
     /**
      * 查询数量
      *
@@ -143,7 +144,7 @@ public class DynamicSqlProvider {
      * @return
      */
     public String countByCondition(StatementProviderContext context) {
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         sb.append("COUNT(1) ");
@@ -159,8 +160,8 @@ public class DynamicSqlProvider {
      * @return
      */
     public String updateSelectiveByCondition(StatementProviderContext context) {
-        EntityTable entityTable = EntityHolder.getEntityTable(context.getEntityClass());
-        List<EntityColumn> columns = EntityHolder.getColumns(entityTable.getEntityClassColumns(), false, false, true);
+        EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
+        List<TableColumn> columns = EntityTables.getColumns(entityTable.getColumns(), false, false, true);
         String s = XmlSqlUtil.updateSetColumns(columns, null, true, false);
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.updateTable(entityTable.getName(), null));

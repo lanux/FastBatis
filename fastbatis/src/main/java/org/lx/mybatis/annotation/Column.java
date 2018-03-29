@@ -35,6 +35,8 @@ public @interface Column {
 
     boolean updatable() default true;
 
+    boolean reserved() default false;//保留字
+
     JdbcType jdbcType() default JdbcType.UNDEFINED;
 
     Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;

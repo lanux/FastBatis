@@ -4,7 +4,7 @@ import org.apache.ibatis.builder.annotation.MethodResolver;
 import org.apache.ibatis.session.Configuration;
 import org.lx.mybatis.annotation.FastMapper;
 import org.lx.mybatis.builder.StatementProviderAnnotationBuilder;
-import org.lx.mybatis.helper.EntityHolder;
+import org.lx.mybatis.helper.EntityTables;
 import org.mybatis.spring.mapper.MapperFactoryBean;
 
 import java.lang.reflect.Method;
@@ -32,9 +32,9 @@ public class FastMapperFactoryBean<T> extends MapperFactoryBean<T> {
         if (hasFastMapper(mapperInterface)) {
             Class<?> entityClass = getEntityClassByInterface(mapperInterface);
             if (entityClass != null) {
-                EntityHolder.resolveEntity(entityClass);
                 Configuration configuration = this.getSqlSession().getConfiguration();
                 Method[] methods = mapperInterface.getMethods();
+                EntityTables.resolveEntity(entityClass);
                 StatementProviderAnnotationBuilder annotationBuilder = new StatementProviderAnnotationBuilder(configuration, mapperInterface, entityClass);
                 Collection<MethodResolver> incompleteMethods = configuration.getIncompleteMethods();
                 synchronized (incompleteMethods) {

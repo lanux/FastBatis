@@ -1,7 +1,6 @@
 package org.lx.mybatis.helper;
 
-import org.lx.mybatis.entity.Condition;
-import org.lx.mybatis.entity.EntityColumn;
+import org.lx.mybatis.entity.TableColumn;
 import org.lx.mybatis.util.StringUtil;
 
 import java.util.Collection;
@@ -18,7 +17,7 @@ public class XmlSqlUtil {
      * @param contents
      * @return
      */
-    public static String getIfNotNull(String aliasName, EntityColumn column, String contents) {
+    public static String getIfNotNull(String aliasName, TableColumn column, String contents) {
         StringBuilder sql = new StringBuilder();
         sql.append("<if test=\"");
         if (StringUtil.isNotEmpty(aliasName)) {
@@ -37,7 +36,7 @@ public class XmlSqlUtil {
      * @param contents
      * @return
      */
-    public static String getIfNotEmpty(String aliasName, EntityColumn column, String contents) {
+    public static String getIfNotEmpty(String aliasName, TableColumn column, String contents) {
         StringBuilder sql = new StringBuilder();
         sql.append("<if test=\"");
         if (StringUtil.isNotEmpty(aliasName)) {
@@ -74,23 +73,23 @@ public class XmlSqlUtil {
      * @param columns
      * @return
      */
-    public static String whereAllIfColumns(String aliasName, List<EntityColumn> columns) {
+    public static String whereAllIfColumns(String aliasName, List<TableColumn> columns) {
         StringBuilder sql = new StringBuilder();
         sql.append("<where>\n");
-        for (EntityColumn column : columns) {
+        for (TableColumn column : columns) {
             sql.append(getIfNotNull(aliasName, column, "AND " + column.getColumnEqualsHolder()));
         }
         sql.append("</where>\n");
         return sql.toString();
     }
 
-    public static String getAllIfColumns(String aliasName, Collection<EntityColumn> columnList) {
+    public static String getAllIfColumns(String aliasName, Collection<TableColumn> columnList) {
         return columnList.stream()
                 .map(entityColumn -> getIfNotNull(aliasName, entityColumn, entityColumn.getColumn()))
                 .collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
     }
 
-    public static String getAllIfColumnValueHolder(String aliasName, Collection<EntityColumn> columnList) {
+    public static String getAllIfColumnValueHolder(String aliasName, Collection<TableColumn> columnList) {
         return columnList.stream()
                 .map(entityColumn -> getIfNotNull(aliasName, entityColumn, entityColumn.getColumnHolder(aliasName)))
                 .collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
@@ -106,7 +105,7 @@ public class XmlSqlUtil {
      * @param notEmpty   判断!=null 且 String类型!=''
      * @return
      */
-    public static String updateSetColumns(List<EntityColumn> columns, String entityName, boolean notNull, boolean notEmpty) {
+    public static String updateSetColumns(List<TableColumn> columns, String entityName, boolean notNull, boolean notEmpty) {
         StringBuilder sql = new StringBuilder();
         sql.append("<set>");
         columns.stream().filter(column -> !column.isId() && column.isUpdatable()).forEach(column -> {
@@ -128,11 +127,11 @@ public class XmlSqlUtil {
      * @param columnList
      * @return
      */
-    public static String batchInsertValues(List<EntityColumn> columnList) {
+    public static String batchInsertValues(List<TableColumn> columnList) {
         StringBuilder sql = new StringBuilder(" VALUES ");
         sql.append("<foreach collection=\"list\" item=\"record\" separator=\",\" >");
         sql.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-        for (EntityColumn column : columnList) {
+        for (TableColumn column : columnList) {
             if (!column.isId() && column.isInsertable()) {
                 sql.append(column.getColumnHolder("record") + ",");
             }

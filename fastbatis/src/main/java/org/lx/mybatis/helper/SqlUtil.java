@@ -2,7 +2,7 @@ package org.lx.mybatis.helper;
 
 import org.lx.mybatis.entity.Condition;
 import org.lx.mybatis.entity.Criterion;
-import org.lx.mybatis.entity.EntityColumn;
+import org.lx.mybatis.entity.TableColumn;
 import org.lx.mybatis.entity.EntityTable;
 import org.lx.mybatis.util.StringUtil;
 
@@ -103,8 +103,8 @@ public class SqlUtil {
      * @param columnList
      * @return
      */
-    public static String getValuesHolder(Collection<EntityColumn> columnList) {
-        return columnList.stream().map(EntityColumn::getColumnHolder).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+    public static String getValuesHolder(Collection<TableColumn> columnList) {
+        return columnList.stream().map(TableColumn::getColumnHolder).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
     }
 
     /**
@@ -113,25 +113,25 @@ public class SqlUtil {
      * @param columnList
      * @return
      */
-    public static String[] getEqualsHolder(Collection<EntityColumn> columnList) {
-        return columnList.stream().map(EntityColumn::getColumnEqualsHolder).toArray(String[]::new);
+    public static String[] getEqualsHolder(Collection<TableColumn> columnList) {
+        return columnList.stream().map(TableColumn::getColumnEqualsHolder).toArray(String[]::new);
     }
 
 
-    public static String getColumnNames(List<EntityColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUpdatable) {
+    public static String getColumnNames(List<TableColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUpdatable) {
         if (columnList != null) {
             return columnList.stream().filter(p -> excludeBlob ? p.isBlob() : true)
                     .filter(p -> excludeUnInsertable ? p.isInsertable() : true)
                     .filter(p -> excludeUpdatable ? p.isUpdatable() : true)
-                    .map(EntityColumn::getColumn).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+                    .map(TableColumn::getColumn).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
         }
         return "";
     }
 
-    public static String getColumnNames(List<EntityColumn> columnList) {
+    public static String getColumnNames(List<TableColumn> columnList) {
         if (columnList != null) {
             return columnList.stream()
-                    .map(EntityColumn::getColumn).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+                    .map(TableColumn::getColumn).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
         }
         return "";
     }
@@ -144,7 +144,7 @@ public class SqlUtil {
      * @return
      */
     public static String getAllColumns(Class<?> entityClass) {
-        return getAllColumns(EntityHolder.getEntityTable(entityClass));
+        return getAllColumns(EntityTables.getEntityTable(entityClass));
     }
 
     /**
@@ -154,15 +154,15 @@ public class SqlUtil {
      * @return
      */
     public static String getAllColumns(EntityTable table) {
-        List<EntityColumn> columnList = table.getEntityClassColumns();
+        List<TableColumn> columnList = table.getColumns();
         return getColumnNames(columnList, false, false, false);
     }
 
-    public static String batchInsertValues(List<EntityColumn> columnList) {
+    public static String batchInsertValues(List<TableColumn> columnList) {
         StringBuilder sql = new StringBuilder(" VALUES ");
         sql.append("<foreach collection=\"list\" item=\"record\" separator=\",\" >");
         sql.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-        for (EntityColumn column : columnList) {
+        for (TableColumn column : columnList) {
             if (!column.isId() && column.isInsertable()) {
                 sql.append(column.getColumnHolder("record") + ",");
             }

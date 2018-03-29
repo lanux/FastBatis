@@ -14,10 +14,10 @@ import java.util.List;
 public interface SelectConditionMapper<T> {
 
     @ResultMap("BaseResultMap")
-    @StatementProvider(type = DynamicSqlProvider.class,method = "selectByCondition",commandType = SqlCommandType.SELECT)
+    @StatementProvider(type = DynamicSqlProvider.class, method = "selectByCondition", commandType = SqlCommandType.SELECT)
     List<T> selectByCondition(Condition condition);
 
-    @StatementProvider(type = DynamicSqlProvider.class,method = "countByCondition",commandType = SqlCommandType.SELECT)
+    @StatementProvider(type = DynamicSqlProvider.class, method = "countByCondition", commandType = SqlCommandType.SELECT)
     @ResultType(Long.class)
     long countByCondition(Condition condition);
 

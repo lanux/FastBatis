@@ -21,11 +21,13 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 import org.lx.mybatis.annotation.StatementProvider;
 import org.lx.mybatis.entity.EntityTable;
-import org.lx.mybatis.helper.EntityHolder;
+import org.lx.mybatis.entity.TableColumn;
+import org.lx.mybatis.helper.EntityTables;
 import org.lx.mybatis.util.StringUtil;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StatementProviderAnnotationBuilder {
 
@@ -122,7 +124,7 @@ public class StatementProviderAnnotationBuilder {
         if (annotation == null) return;
         Class<?> parameterTypeClass = getParameterType(method);
         LanguageDriver languageDriver = getLanguageDriver(method);
-        EntityTable entityTable = EntityHolder.getEntityTable(entityClass);
+        EntityTable entityTable = EntityTables.getEntityTable(entityClass);
         SqlSource sqlSource = getSqlSourceFromAnnotations(method, entityClass, parameterTypeClass, languageDriver);
         if (sqlSource != null) {
             Options options = method.getAnnotation(Options.class);
@@ -140,10 +142,9 @@ public class StatementProviderAnnotationBuilder {
             String keyProperty = "";
             String keyColumn = null;
             if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
-                // first check for SelectKey annotation - that overrides everything else
                 SelectKey selectKey = method.getAnnotation(SelectKey.class);
                 String defaultKeyProperties = entityTable.getKeyProperties();
-                String defaultKeyColumns = entityTable.getKeyColumns();
+                String defaultKeyColumns = entityTable.getKeyColumnNames();
                 if (selectKey != null) {
                     keyGenerator = handleSelectKeyAnnotation(selectKey, mappedStatementId, getParameterType(method), languageDriver, defaultKeyProperties, defaultKeyColumns);
                     keyProperty = StringUtil.blankToDefault(selectKey.keyProperty(), defaultKeyProperties);
@@ -471,11 +472,32 @@ public class StatementProviderAnnotationBuilder {
     }
 
     public void parseResultMap() {
-        String id = "BaseResultMap";
-        if (!configuration.hasResultMap(assistant.applyCurrentNamespace(id, false))) {
-            EntityTable entityTable = EntityHolder.getEntityTable(entityClass);
+        String simpleId = "BaseResultMap";
+        EntityTable entityTable = EntityTables.getEntityTable(entityClass);
+        String resultMapId = assistant.applyCurrentNamespace(simpleId, false);
+        if (!configuration.hasResultMap(resultMapId)) {
             List<ResultMapping> resultMappings = entityTable.getResultMappings(configuration);
-            assistant.addResultMap(id, entityClass, null, null, resultMappings, true);
+            assistant.addResultMap(simpleId, entityClass, null, null, resultMappings, true);
+        } else {
+            org.apache.ibatis.mapping.ResultMap resultMap = configuration.getResultMap(resultMapId);
+            List<ResultMapping> resultMappings = resultMap.getResultMappings();
+            if (resultMappings == null || resultMappings.isEmpty()) {
+                return;
+            }
+            Map<String, ResultMapping> collect = resultMappings.stream().collect(Collectors.toMap(p -> p.getProperty(), p -> p));
+            List<TableColumn> columns = entityTable.getColumns();
+            for (TableColumn tableColumn : columns) {
+                ResultMapping resultMapping = collect.get(tableColumn.getProperty());
+                if (resultMapping != null) {
+                    if (!tableColumn.isId() && resultMapping.getFlags().contains(ResultFlag.ID)) {
+                        tableColumn.setId(true);
+                    }
+                    if (tableColumn.getJdbcType() == null && resultMapping.getJdbcType() != null) {
+                        tableColumn.setJdbcType(resultMapping.getJdbcType());
+                    }
+
+                }
+            }
         }
     }
 }
