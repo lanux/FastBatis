@@ -173,37 +173,5 @@ public class SqlUtil {
     }
 
 
-    public static String xmlWhereClause(Condition condition) {
-        return "<if test=\"_parameter != null\">" +
-                "<where>\n" +
-                "  <foreach collection=\"oredCriteria\" item=\"criteria\">\n" +
-                "    <if test=\"criteria.isNotEmpty\">\n" +
-                "      ${criteria.andOr}" +
-                "      <trim prefix=\"(\" prefixOverrides=\"and | or \" suffix=\")\">\n" +
-                "        <foreach collection=\"criteria.criteria\" item=\"criterion\">\n" +
-                "          <choose>\n" +
-                "            <when test=\"criterion.noValue\">\n" +
-                "             ${criterion.andOr} ${criterion.column}  ${criterion.condition}\n" +
-                "            </when>\n" +
-                "            <when test=\"criterion.singleValue\">\n" +
-                "             ${criterion.andOr} ${criterion.column} ${criterion.condition} #{criterion.value}\n" +
-                "            </when>\n" +
-                "            <when test=\"criterion.betweenValue\">\n" +
-                "              ${criterion.andOr} ${criterion.column} ${criterion.condition} #{criterion.value} and #{criterion.secondValue}\n" +
-                "            </when>\n" +
-                "            <when test=\"criterion.listValue\">\n" +
-                "              ${criterion.andOr} ${criterion.column} ${criterion.condition}\n" +
-                "              <foreach close=\")\" collection=\"criterion.value\" item=\"listItem\" open=\"(\" separator=\",\">\n" +
-                "                #{listItem}\n" +
-                "              </foreach>\n" +
-                "            </when>\n" +
-                "          </choose>\n" +
-                "        </foreach>\n" +
-                "      </trim>\n" +
-                "    </if>\n" +
-                "  </foreach>\n" +
-                "</where>" +
-                "</if>";
-    }
 
 }

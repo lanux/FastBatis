@@ -4,6 +4,7 @@ import org.lx.mybatis.helper.EntityTables;
 import org.lx.mybatis.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -117,177 +118,153 @@ public class Condition {
             criteria = new ArrayList<>();
         }
 
-        protected void addCriterion(Criterion criterion) {
+        protected Criterion addCriterion(Criterion criterion) {
+            criterion.setColumn(column(criterion.getColumn()));
             if (StringUtil.isNotEmpty(Condition.this.alias)) {
                 criterion.setColumn(Condition.this.alias + "" + criterion.getColumn());
             }
             criteria.add(criterion);
-        }
-
-
-        protected void addCriterion(String column, String condition) {
-            addCriterion(new Criterion(column, condition));
-        }
-
-        protected void addCriterion(String column, String condition, Object value) {
-            addCriterion(new Criterion(column, condition, value));
-        }
-
-        protected void addCriterion(String column, String condition, Object value1, Object value2) {
-            addCriterion(new Criterion(column, condition, value1, value2));
-        }
-
-
-        protected void addOrCriterion(String column, String condition) {
-            addCriterion(new Criterion(column, condition, true));
-        }
-
-        protected void addOrCriterion(String column, String condition, Object value) {
-            addCriterion(new Criterion(column, condition, value, true));
-        }
-
-        protected void addOrCriterion(String column, String condition, Object value1, Object value2) {
-            addCriterion(new Criterion(column, condition, value1, value2, true));
+            return criterion;
         }
 
         public Criteria andIsNull(String property) {
-            addCriterion(column(property), "is null");
+            addCriterion(Operator.IS_NULL.andCriterion(property));
             return this;
         }
 
         public Criteria andIsNotNull(String property) {
-            addCriterion(column(property), "is not null");
+            addCriterion(Operator.IS_NOT_NULL.andCriterion(property));
             return this;
         }
 
         public Criteria andEqualTo(String property, Object value) {
-            addCriterion(column(property), "=", value);
+            addCriterion(Operator.IS_NOT_NULL.andCriterion(property, value));
             return this;
         }
 
-        public Criteria andNotEqualTo(String property, Object value) {
-            addCriterion(column(property), "<>", value);
+        public Criteria andNe(String property, Object value) {
+            addCriterion(Operator.NE.andCriterion(property, value));
             return this;
         }
 
-        public Criteria andGreaterThan(String property, Object value) {
-            addCriterion(column(property), ">", value);
+        public Criteria andGt(String property, Object value) {
+            addCriterion(Operator.GT.andCriterion(property, value));
             return this;
         }
 
-        public Criteria andGreaterThanOrEqualTo(String property, Object value) {
-            addCriterion(column(property), ">=", value);
+        public Criteria andGe(String property, Object value) {
+            addCriterion(Operator.GE.andCriterion(property, value));
             return this;
         }
 
-        public Criteria andLessThan(String property, Object value) {
-            addCriterion(column(property), "<", value);
+        public Criteria andLt(String property, Object value) {
+            addCriterion(Operator.LT.andCriterion(property, value));
             return this;
         }
 
-        public Criteria andLessThanOrEqualTo(String property, Object value) {
-            addCriterion(column(property), "<=", value);
+        public Criteria andLe(String property, Object value) {
+            addCriterion(Operator.LE.andCriterion(property, value));
             return this;
         }
 
-        public Criteria andIn(String property, Iterable values) {
-            addCriterion(column(property), "in", values);
+        public Criteria andIn(String property, Condition values) {
+            addCriterion(Operator.IN.andCriterion(property, values));
             return this;
         }
 
-        public Criteria andNotIn(String property, Iterable values) {
-            addCriterion(column(property), "not in", values);
+        public Criteria andNotIn(String property, Collection values) {
+            addCriterion(Operator.NOT_IN.andCriterion(property, values));
             return this;
         }
 
         public Criteria andBetween(String property, Object value1, Object value2) {
-            addCriterion(column(property), "between", value1, value2);
+            addCriterion(Operator.BETWEEN.andCriterion(property, value1, value2));
             return this;
         }
 
         public Criteria andNotBetween(String property, Object value1, Object value2) {
-            addCriterion(column(property), "not between", value1, value2);
+            addCriterion(Operator.NOT_BETWEEN.andCriterion(property, value1, value2));
             return this;
         }
 
         public Criteria andLike(String property, String value, MatchMode matchMode) {
-            addCriterion(column(property), "like", matchMode.toMatchString(value));
+            addCriterion(Operator.LIKE.andCriterion(property, matchMode.toMatchString(value)));
             return this;
         }
 
         public Criteria andNotLike(String property, String value, MatchMode matchMode) {
-            addCriterion(column(property), "not like", matchMode.toMatchString(value));
+            addCriterion(Operator.NOT_LIKE.andCriterion(property, matchMode.toMatchString(value)));
             return this;
         }
 
 
         public Criteria orIsNull(String property) {
-            addCriterion(new Criterion(column(property), "is null", true));
+            addCriterion(Operator.IS_NULL.orCriterion(property));
             return this;
         }
 
         public Criteria orIsNotNull(String property) {
-            addOrCriterion(column(property), "is not null");
+            addCriterion(Operator.IS_NOT_NULL.orCriterion(property));
             return this;
         }
 
-        public Criteria orEqualTo(String property, Object value) {
-            addOrCriterion(column(property), "=", value);
+        public Criteria orEq(String property, Object value) {
+            addCriterion(Operator.EQ.orCriterion(property, value));
             return this;
         }
 
-        public Criteria orNotEqualTo(String property, Object value) {
-            addOrCriterion(column(property), "<>", value);
+        public Criteria orNe(String property, Object value) {
+            addCriterion(Operator.NE.orCriterion(property, value));
             return this;
         }
 
-        public Criteria orGreaterThan(String property, Object value) {
-            addOrCriterion(column(property), ">", value);
+        public Criteria orGt(String property, Object value) {
+            addCriterion(Operator.GT.orCriterion(property, value));
             return this;
         }
 
-        public Criteria orGreaterThanOrEqualTo(String property, Object value) {
-            addOrCriterion(column(property), ">=", value);
+        public Criteria orGe(String property, Object value) {
+            addCriterion(Operator.GE.orCriterion(property, value));
             return this;
         }
 
-        public Criteria orLessThan(String property, Object value) {
-            addOrCriterion(column(property), "<", value);
+        public Criteria orLt(String property, Object value) {
+            addCriterion(Operator.LT.orCriterion(property, value));
             return this;
         }
 
-        public Criteria orLessThanOrEqualTo(String property, Object value) {
-            addOrCriterion(column(property), "<=", value);
+        public Criteria orLe(String property, Object value) {
+            addCriterion(Operator.LE.orCriterion(property, value));
             return this;
         }
 
-        public Criteria orIn(String property, Iterable values) {
-            addOrCriterion(column(property), "in", values);
+        public Criteria orIn(String property, Collection values) {
+            addCriterion(Operator.IN.orCriterion(property, values));
             return this;
         }
 
-        public Criteria orNotIn(String property, Iterable values) {
-            addOrCriterion(column(property), "not in", values);
+        public Criteria orNotIn(String property, Collection values) {
+            addCriterion(Operator.NOT_IN.orCriterion(property, values));
             return this;
         }
 
         public Criteria orBetween(String property, Object value1, Object value2) {
-            addOrCriterion(column(property), "between", value1, value2);
+            addCriterion(Operator.BETWEEN.orCriterion(property, value1, value2));
             return this;
         }
 
         public Criteria orNotBetween(String property, Object value1, Object value2) {
-            addOrCriterion(column(property), "not between", value1, value2);
+            addCriterion(Operator.NOT_BETWEEN.orCriterion(property, value1, value2));
             return this;
         }
 
         public Criteria orLike(String property, String value, MatchMode matchMode) {
-            addOrCriterion(column(property), "like", matchMode.toMatchString(value));
+            addCriterion(Operator.LIKE.orCriterion(property, matchMode.toMatchString(value)));
             return this;
         }
 
         public Criteria orNotLike(String property, String value, MatchMode matchMode) {
-            addOrCriterion(column(property), "not like", matchMode.toMatchString(value));
+            addCriterion(Operator.NOT_LIKE.orCriterion(property, matchMode.toMatchString(value)));
             return this;
         }
 

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.lx.mapper.SysUserMapper;
 import org.lx.model.SysUser;
 import org.lx.mybatis.entity.Condition;
+import org.lx.mybatis.entity.Criterion;
 import org.lx.mybatis.entity.MatchMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

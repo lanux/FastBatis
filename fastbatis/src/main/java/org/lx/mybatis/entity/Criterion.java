@@ -21,6 +21,8 @@ public class Criterion {
 
     private boolean listValue;
 
+    private ValueMode valueMode =ValueMode.HASH;
+
     protected Criterion() {
     }
 

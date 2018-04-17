@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 public @interface StatementProvider {
     Class type();
 
-    String method() default "";
+    String method();
 
-    SqlCommandType commandType() default SqlCommandType.UNKNOWN;
+    SqlCommandType commandType();
 }
