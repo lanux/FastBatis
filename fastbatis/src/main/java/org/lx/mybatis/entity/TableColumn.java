@@ -15,89 +15,13 @@ public class TableColumn {
     private Class<? extends TypeHandler<?>> typeHandler;
     private boolean id = false;
     private boolean blob = false;
-    private boolean nullable = true;
-    private boolean insertable = true;
-    private boolean updatable = true;
+    private boolean nullAble = true;
+    private boolean insertAble = true;
+    private boolean updateAble = true;
     private String defaultValue;// insert or update时候，sql常量值，比如 序列ID
 
     public TableColumn() {
     }
-
-    /**
-     * 返回格式如:colum = #{age,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
-     *
-     * @param entityName
-     * @return
-     */
-    public String getColumnEqualsHolder(String entityName) {
-        return this.column + " = " + getColumnHolder(entityName);
-    }
-
-    /**
-     * 返回格式如:#{entityName.age,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
-     *
-     * @param entityName
-     * @return
-     */
-    public String getColumnHolder(String entityName) {
-        return getColumnHolder(entityName, null);
-    }
-
-    /**
-     * 返回格式如:#{entityName.age+suffix,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
-     *
-     * @param entityName
-     * @param suffix
-     * @return
-     */
-    public String getColumnHolder(String entityName, String suffix) {
-        return getColumnHolder(entityName, null, null);
-    }
-
-    /**
-     * 返回格式如:#{entityName.age+suffix,jdbcType=NUMERIC,typeHandler=MyTypeHandler},
-     *
-     * @param entityName
-     * @param suffix
-     * @return
-     */
-    public String getColumnHolderWithComma(String entityName, String suffix) {
-        return getColumnHolder(entityName, suffix, ",");
-    }
-
-    /**
-     * 返回格式如:#{entityName.age+suffix,jdbcType=NUMERIC,typeHandler=MyTypeHandler}+separator
-     *
-     * @param entityName
-     * @param suffix
-     * @param separator
-     * @return
-     */
-    public String getColumnHolder(String entityName, String suffix, String separator) {
-        StringBuffer sb = new StringBuffer("#{");
-        if (StringUtil.isNotEmpty(entityName)) {
-            sb.append(entityName);
-            sb.append(".");
-        }
-        sb.append(this.property);
-        if (StringUtil.isNotEmpty(suffix)) {
-            sb.append(suffix);
-        }
-        //如果 null 被当作值来传递，对于所有可能为空的列，JDBC Type 是需要的
-        if (this.jdbcType != null) {
-            sb.append(",jdbcType=");
-            sb.append(this.jdbcType.toString());
-        } else if (this.typeHandler != null) {
-            sb.append(",typeHandler=");
-            sb.append(this.typeHandler.getCanonicalName());
-        }
-        sb.append("}");
-        if (StringUtil.isNotEmpty(separator)) {
-            sb.append(separator);
-        }
-        return sb.toString();
-    }
-
 
     public String getColumn() {
         return column;
@@ -105,24 +29,6 @@ public class TableColumn {
 
     public void setColumn(String column) {
         this.column = column;
-    }
-
-    /**
-     * 返回格式如:colum = #{age,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
-     *
-     * @return
-     */
-    public String getColumnEqualsHolder() {
-        return getColumnEqualsHolder(null);
-    }
-
-    /**
-     * 返回格式如:#{age,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
-     *
-     * @return
-     */
-    public String getColumnHolder() {
-        return getColumnHolder(null);
     }
 
     public Class<?> getJavaType() {
@@ -173,28 +79,28 @@ public class TableColumn {
         this.blob = blob;
     }
 
-    public boolean isNullable() {
-        return nullable;
+    public boolean isNullAble() {
+        return nullAble;
     }
 
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
+    public void setNullAble(boolean nullAble) {
+        this.nullAble = nullAble;
     }
 
-    public boolean isInsertable() {
-        return insertable;
+    public boolean isInsertAble() {
+        return insertAble;
     }
 
-    public void setInsertable(boolean insertable) {
-        this.insertable = insertable;
+    public void setInsertAble(boolean insertAble) {
+        this.insertAble = insertAble;
     }
 
-    public boolean isUpdatable() {
-        return updatable;
+    public boolean isUpdateAble() {
+        return updateAble;
     }
 
-    public void setUpdatable(boolean updatable) {
-        this.updatable = updatable;
+    public void setUpdateAble(boolean updateAble) {
+        this.updateAble = updateAble;
     }
 
     public String getDefaultValue() {

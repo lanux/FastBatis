@@ -2,8 +2,8 @@ package org.lx.mybatis.helper;
 
 import org.lx.mybatis.entity.Condition;
 import org.lx.mybatis.entity.Criterion;
-import org.lx.mybatis.entity.TableColumn;
 import org.lx.mybatis.entity.EntityTable;
+import org.lx.mybatis.entity.TableColumn;
 import org.lx.mybatis.util.StringUtil;
 
 import java.util.Collection;
@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 
 public class SqlUtil {
 
-    public static final CharSequence COLUMN_JOIN_DELIMITER = ",";
+    public static final String COLUMN_JOIN_DELIMITER = ",";
+    public static final String NEW_LINE_DELIMITER = "\n";
 
     /**
      * 返回格式如:colum = #{age,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
@@ -21,7 +22,8 @@ public class SqlUtil {
      * @return
      */
     public static String whereClause(Condition condition) {
-        if (condition == null) return null;
+        if (condition == null)
+            return null;
         StringBuilder sb = new StringBuilder();
         List<Condition.Criteria> oredCriteria = condition.getOredCriteria();
         for (int i = 0; i < oredCriteria.size(); i++) {
@@ -34,9 +36,12 @@ public class SqlUtil {
                 if (criterion.isNoValue()) {
                     sb.append(criterion.columnCondition());
                 } else if (criterion.isSingleValue()) {
-                    sb.append(String.format("%s #{oredCriteria[%d].criteria[%d].value}", criterion.columnCondition(), i, j));
+                    sb.append(String.format("%s #{oredCriteria[%d].criteria[%d].value}", criterion.columnCondition(), i,
+                            j));
                 } else if (criterion.isBetweenValue()) {
-                    sb.append(String.format("%s #{oredCriteria[%d].criteria[%d].value} AND #{criteria.andList[%d].data[%d].secondValue}", criterion.columnCondition(), i, j, i, j));
+                    sb.append(String.format(
+                            "%s #{oredCriteria[%d].criteria[%d].value} AND #{criteria.andList[%d].data[%d].secondValue}",
+                            criterion.columnCondition(), i, j, i, j));
                 } else if (criterion.isListValue()) {
                     sb.append(criterion.columnCondition() + " (");
                     List<?> listItems = (List<?>) criterion.getValue();
@@ -104,7 +109,8 @@ public class SqlUtil {
      * @return
      */
     public static String getValuesHolder(Collection<TableColumn> columnList) {
-        return columnList.stream().map(TableColumn::getColumnHolder).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+        return columnList.stream().map(p -> XmlSqlUtil.getValueHolder(p, null, null))
+                .collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
     }
 
     /**
@@ -114,28 +120,28 @@ public class SqlUtil {
      * @return
      */
     public static String[] getEqualsHolder(Collection<TableColumn> columnList) {
-        return columnList.stream().map(TableColumn::getColumnEqualsHolder).toArray(String[]::new);
+        return columnList.stream().map(p -> XmlSqlUtil.getColumnEqualsValueHolder(p, null, null))
+                .toArray(String[]::new);
     }
 
-
-    public static String getColumnNames(List<TableColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUpdatable) {
+    public static String getColumnNames(List<TableColumn> columnList, boolean excludeBlob, boolean excludeUnInsertAble,
+            boolean excludeUpdateAble) {
         if (columnList != null) {
             return columnList.stream().filter(p -> excludeBlob ? p.isBlob() : true)
-                    .filter(p -> excludeUnInsertable ? p.isInsertable() : true)
-                    .filter(p -> excludeUpdatable ? p.isUpdatable() : true)
-                    .map(TableColumn::getColumn).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+                    .filter(p -> excludeUnInsertAble ? p.isInsertAble(): true)
+                    .filter(p -> excludeUpdateAble ? p.isUpdateAble() : true).map(TableColumn::getColumn)
+                    .collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
         }
         return "";
     }
 
     public static String getColumnNames(List<TableColumn> columnList) {
         if (columnList != null) {
-            return columnList.stream()
-                    .map(TableColumn::getColumn).collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
+            return columnList.stream().map(TableColumn::getColumn)
+                    .collect(Collectors.joining(SqlUtil.COLUMN_JOIN_DELIMITER));
         }
         return "";
     }
-
 
     /**
      * 获取所有查询列，如id,name,code...
@@ -157,21 +163,5 @@ public class SqlUtil {
         List<TableColumn> columnList = table.getColumns();
         return getColumnNames(columnList, false, false, false);
     }
-
-    public static String batchInsertValues(List<TableColumn> columnList) {
-        StringBuilder sql = new StringBuilder(" VALUES ");
-        sql.append("<foreach collection=\"list\" item=\"record\" separator=\",\" >");
-        sql.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
-        for (TableColumn column : columnList) {
-            if (!column.isId() && column.isInsertable()) {
-                sql.append(column.getColumnHolder("record") + ",");
-            }
-        }
-        sql.append("</trim>");
-        sql.append("</foreach>");
-        return sql.toString();
-    }
-
-
 
 }

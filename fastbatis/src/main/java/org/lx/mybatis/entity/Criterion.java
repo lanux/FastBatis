@@ -11,7 +11,7 @@ public class Criterion {
 
     private Object secondValue;
 
-    private String andOr = "AND";
+    private String andOr = Operator.AND.value;
 
     private boolean noValue;
 
@@ -44,7 +44,7 @@ public class Criterion {
         this.column = column;
         this.condition = condition;
         this.noValue = true;
-        this.andOr = isOr ? "OR" : this.andOr;
+        this.andOr = isOr ? Operator.OR.value : this.andOr;
     }
 
     protected Criterion(String column, String condition, Object value, boolean isOr) {
@@ -52,7 +52,7 @@ public class Criterion {
         this.column = column;
         this.condition = condition;
         this.value = value;
-        this.andOr = isOr ? "OR" : this.andOr;
+        this.andOr = isOr ? Operator.OR.value : this.andOr;
         if (value instanceof Collection) {
             this.listValue = true;
         } else {
@@ -66,7 +66,7 @@ public class Criterion {
         this.condition = condition;
         this.value = value;
         this.secondValue = secondValue;
-        this.andOr = isOr ? "OR" : this.andOr;
+        this.andOr = isOr ? Operator.OR.value : this.andOr;
         if (value instanceof Collection) {
             this.listValue = true;
         } else {
