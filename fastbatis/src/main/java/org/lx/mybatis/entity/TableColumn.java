@@ -18,6 +18,7 @@ public class TableColumn {
     private boolean nullable = true;
     private boolean insertable = true;
     private boolean updatable = true;
+    private String defaultValue;// insert or update时候，sql常量值，比如 序列ID
 
     public TableColumn() {
     }
@@ -194,5 +195,13 @@ public class TableColumn {
 
     public void setUpdatable(boolean updatable) {
         this.updatable = updatable;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 }

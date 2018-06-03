@@ -112,11 +112,11 @@ public class EntityTables {
             if (columnType.jdbcType() != JdbcType.UNDEFINED) {
                 tableColumn.setJdbcType(columnType.jdbcType());
             }
-            if (columnType.typeHandler() != UnknownTypeHandler.class) {
-                tableColumn.setTypeHandler(columnType.typeHandler());
-            }
             if (columnType.reserved()) {
                 tableColumn.setColumn(columnType.delimiter() + columnName + columnType.delimiter());
+            }
+            if (StringUtil.isNotBlank(columnType.defaultValue())){
+                tableColumn.setColumn(columnType.defaultValue());
             }
         }
         //列名

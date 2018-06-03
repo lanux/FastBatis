@@ -20,12 +20,12 @@ public @interface Column {
     boolean nullable() default true;//是否允许为空
 
     String columnDefinition() default "";
-
-    int length() default 255;
-
-    int precision() default 0;
-
-    int scale() default 0;
+//
+//    int length() default 255;
+//
+//    int precision() default 0;
+//
+//    int scale() default 0;
 
     boolean isBlob() default false;// 是否blob字段
 
@@ -39,5 +39,7 @@ public @interface Column {
 
     JdbcType jdbcType() default JdbcType.UNDEFINED;
 
-    Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
+//    Class<? extends TypeHandler<?>> typeHandler() default UnknownTypeHandler.class;
+
+    String defaultValue() default "";//insert or update时候如果有自定义值则使用自定义值，否则使用默认值，
 }
