@@ -1,6 +1,7 @@
 package org.lx.mybatis.builder;
 
 import org.apache.ibatis.session.Configuration;
+import org.lx.mybatis.entity.Options;
 
 import java.lang.reflect.Method;
 
@@ -9,6 +10,7 @@ public class StatementProviderContext {
     private Class<?> mapperType;
     private Method mapperMethod;
     private Class<?> entityClass;
+    private Options options;
 
     public Configuration getConfiguration() {
         return configuration;
@@ -43,6 +45,15 @@ public class StatementProviderContext {
 
     public StatementProviderContext setEntityClass(Class<?> entityClass) {
         this.entityClass = entityClass;
+        return this;
+    }
+
+    public Options getOptions() {
+        return options;
+    }
+
+    public StatementProviderContext setOptions(Options options) {
+        this.options = options;
         return this;
     }
 }

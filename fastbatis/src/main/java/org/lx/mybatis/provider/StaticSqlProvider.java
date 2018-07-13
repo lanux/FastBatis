@@ -6,6 +6,7 @@ import org.lx.mybatis.entity.EntityTable;
 import org.lx.mybatis.entity.TableColumn;
 import org.lx.mybatis.helper.EntityTables;
 import org.lx.mybatis.helper.SqlUtil;
+import org.lx.mybatis.helper.XmlSqlUtil;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -149,10 +150,12 @@ public class StaticSqlProvider {
         return new SQL() {{
             UPDATE(entityTable.getName());
             for (TableColumn column : entityTable.getColumns()) {
-                SET(column.getColumnEqualsHolder());
+                if (!column.isId()) {
+                    SET(XmlSqlUtil.getColumnEqualsValueHolder(column, null, null));
+                }
             }
             for (TableColumn column : entityTable.getKeyColumns()) {
-                WHERE(column.getColumnEqualsHolder());
+                WHERE(XmlSqlUtil.getColumnEqualsValueHolder(column, null, null));
             }
         }}.toString();
     }
@@ -169,10 +172,12 @@ public class StaticSqlProvider {
             UPDATE(entityTable.getName());
             List<TableColumn> select = EntityTables.filterNotNull(entityTable.getColumns(), object);
             for (TableColumn column : select) {
-                SET(column.getColumnEqualsHolder());
+                if (!column.isId()) {
+                    SET(XmlSqlUtil.getColumnEqualsValueHolder(column, null, null));
+                }
             }
             for (TableColumn column : entityTable.getKeyColumns()) {
-                WHERE(column.getColumnEqualsHolder());
+                WHERE(XmlSqlUtil.getColumnEqualsValueHolder(column, null, null));
             }
         }}.toString();
     }

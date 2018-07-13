@@ -42,14 +42,14 @@ public class Condition {
 
     protected Criteria or() {
         Criteria criteria = createCriteriaInternal();
-        criteria.setAndOr("or");
+        criteria.setAndOr(Operator.OR.value);
         oredCriteria.add(criteria);
         return criteria;
     }
 
     private Criteria and() {
         Criteria criteria = createCriteriaInternal();
-        criteria.setAndOr("and");
+        criteria.setAndOr(Operator.AND.value);
         oredCriteria.add(criteria);
         return criteria;
     }
@@ -57,7 +57,7 @@ public class Condition {
     public Criteria createCriteria() {
         Criteria criteria = createCriteriaInternal();
         if (oredCriteria.size() == 0) {
-            criteria.setAndOr("and");
+            criteria.setAndOr(Operator.AND.value);
             oredCriteria.add(criteria);
         }
         return criteria;
@@ -112,7 +112,7 @@ public class Condition {
     public class Criteria {
         protected List<Criterion> criteria = new ArrayList<>();
 
-        protected String andOr = "OR";//连接条件
+        protected String andOr = Operator.OR.value;//连接条件
 
         protected Criteria() {
             criteria = new ArrayList<>();

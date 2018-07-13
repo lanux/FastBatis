@@ -6,6 +6,7 @@ import org.lx.mybatis.entity.TableColumn;
 import org.lx.mybatis.helper.EntityTables;
 import org.lx.mybatis.helper.SqlUtil;
 import org.lx.mybatis.helper.XmlSqlUtil;
+import org.lx.mybatis.util.StringUtil;
 
 import java.util.List;
 
@@ -24,7 +25,18 @@ public class DynamicSqlProvider {
         sb.append("(");
         sb.append(SqlUtil.getColumnNames(columns));
         sb.append(") VALUES (");
-        sb.append(SqlUtil.getValuesHolder(columns));
+        for (TableColumn column : columns) {
+            if (StringUtil.isNotBlank(column.getDefaultValue())) {
+                sb.append(SqlUtil.NEW_LINE_DELIMITER);
+                sb.append(XmlSqlUtil
+                        .getIfDefaultValue(column, column.getDefaultValue(), null, SqlUtil.COLUMN_JOIN_DELIMITER));
+                sb.append(SqlUtil.NEW_LINE_DELIMITER);
+                sb.append(XmlSqlUtil.getIfNotNull(null, column,
+                        XmlSqlUtil.getValueHolder(column, null, SqlUtil.COLUMN_JOIN_DELIMITER)));
+            } else {
+                sb.append(XmlSqlUtil.getValueHolder(column, null, SqlUtil.COLUMN_JOIN_DELIMITER));
+            }
+        }
         sb.append(")");
         return sb.toString();
     }
@@ -43,6 +55,7 @@ public class DynamicSqlProvider {
         sb.append("(");
         sb.append(SqlUtil.getColumnNames(columns));
         sb.append(")");
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
         sb.append(XmlSqlUtil.batchInsertValues(columns));
         return sb.toString();
     }
@@ -56,11 +69,35 @@ public class DynamicSqlProvider {
         EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         List<TableColumn> columns = EntityTables.getColumns(entityTable.getColumns(), false, true, false);
         sb.append(SqlUtil.insertIntoTable(entityTable.getName()));
-        sb.append("(");
-        sb.append(SqlUtil.getColumnNames(columns));
-        sb.append(") VALUES (");
-        sb.append(XmlSqlUtil.getAllIfColumnValueHolder(null, columns));
-        sb.append(")");
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
+        sb.append("<trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\" >");
+        for (TableColumn column : columns) {
+            if (StringUtil.isNotBlank(column.getDefaultValue())) {
+                sb.append(column.getColumn());
+                sb.append(SqlUtil.NEW_LINE_DELIMITER);
+            } else {
+                sb.append(XmlSqlUtil.getIfNotNull(null, column, column.getColumn() + SqlUtil.COLUMN_JOIN_DELIMITER));
+            }
+        }
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
+        sb.append("</trim>");
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
+        sb.append("VALUES");
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
+        sb.append("<trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\" >");
+        for (TableColumn column : columns) {
+            if (StringUtil.isNotBlank(column.getDefaultValue())) {
+                sb.append(SqlUtil.NEW_LINE_DELIMITER);
+                sb.append(XmlSqlUtil
+                        .getIfDefaultValue(column, column.getDefaultValue(), null, SqlUtil.COLUMN_JOIN_DELIMITER));
+                sb.append(SqlUtil.NEW_LINE_DELIMITER);
+                sb.append(XmlSqlUtil.getIfNotNull(null, column,
+                        XmlSqlUtil.getValueHolder(column, null, SqlUtil.COLUMN_JOIN_DELIMITER)));
+            } else {
+                sb.append(XmlSqlUtil.getIfNotNull(null, column, column.getColumn() + SqlUtil.COLUMN_JOIN_DELIMITER));
+            }
+        } sb.append("</trim>");
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
         return sb.toString();
     }
 
@@ -74,6 +111,7 @@ public class DynamicSqlProvider {
         EntityTable entityTable = EntityTables.getEntityTable(clazz);
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.deleteFromTable(entityTable.getName()));
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
         sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getColumns()));
         return sb.toString();
     }
@@ -87,6 +125,7 @@ public class DynamicSqlProvider {
         EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.deleteFromTable(entityTable.getName()));
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
         sb.append(XmlSqlUtil.whereAllIfColumns(null, entityTable.getKeyColumns()));
         return sb.toString();
     }
@@ -100,10 +139,10 @@ public class DynamicSqlProvider {
         EntityTable entityTable = EntityTables.getEntityTable(context.getEntityClass());
         StringBuilder sb = new StringBuilder();
         sb.append(SqlUtil.deleteFromTable(entityTable.getName()));
+        sb.append(SqlUtil.NEW_LINE_DELIMITER);
         sb.append(XmlSqlUtil.whereClause(null));
         return sb.toString();
     }
-
 
     /**
      * 非空字段过滤查询

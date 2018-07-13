@@ -1,5 +1,7 @@
 package org.lx.mybatis.helper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.scripting.xmltags.ExpressionEvaluator;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.UnknownTypeHandler;
@@ -17,6 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class EntityTables {
+
+    private static final Log logger = LogFactory.getLog(EntityTables.class);
+
 
     /**
      * 实体类 => 表对象
@@ -106,7 +111,7 @@ public class EntityTables {
                 tableColumn.setId(true);
             }
             tableColumn.setBlob(columnType.isBlob());
-            if (StringUtil.isEmpty(columnName) && StringUtil.isNotEmpty(columnType.name())) {
+            if (StringUtil.isBlank(columnName) && StringUtil.isNotBlank(columnType.name())) {
                 columnName = columnType.name();
             }
             if (columnType.jdbcType() != JdbcType.UNDEFINED) {
@@ -118,26 +123,28 @@ public class EntityTables {
             if (StringUtil.isNotBlank(columnType.defaultValue())){
                 tableColumn.setColumn(columnType.defaultValue());
             }
+            tableColumn.setInsertAble(columnType.insertAble());
+            tableColumn.setUpdateAble(columnType.updateAble());
         }
         //列名
-        if (StringUtil.isEmpty(columnName)) {
+        if (StringUtil.isBlank(columnName)) {
             columnName = StringUtil.camelhumpToUnderline(field.getName());
         }
         tableColumn.setProperty(field.getName());
         tableColumn.setColumn(columnName);
         tableColumn.setJavaType(field.getType());
         if (field.getType().isPrimitive()) {
-//            logger.warn("通用 Mapper 警告信息: <[" + tableColumn + "]> 使用了基本类型，基本类型在动态 SQL 中由于存在默认值，因此任何时候都不等于 null，建议修改基本类型为对应的包装类型!");
+            logger.error("错误信息: <[" + tableColumn + "]> 使用了基本类型，建议修改为对应的包装类型!");
         }
         entityTable.getColumns().add(tableColumn);
     }
 
 
-    public static List<TableColumn> getColumns(List<TableColumn> columnList, boolean excludeBlob, boolean excludeUnInsertable, boolean excludeUnUpdatable) {
+    public static List<TableColumn> getColumns(List<TableColumn> columnList, boolean excludeBlob, boolean excludeUnInsertAble, boolean excludeUnUpdateAble) {
         if (columnList != null) {
             return columnList.stream().filter(p -> excludeBlob ? p.isBlob() : true)
-                    .filter(p -> excludeUnInsertable ? p.isInsertable() : true)
-                    .filter(p -> excludeUnUpdatable ? p.isUpdatable() : true)
+                    .filter(p -> excludeUnInsertAble ? p.isInsertAble() : true)
+                    .filter(p -> excludeUnUpdateAble ? p.isUpdateAble() : true)
                     .collect(Collectors.toList());
         }
         return Collections.EMPTY_LIST;
