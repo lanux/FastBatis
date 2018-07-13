@@ -39,6 +39,13 @@ public class FastAnnotationPlugin extends PluginAdapter {
         if (column.isBLOBColumn()) {
             blobText = ",isBlob = true";
         }
+        while (var7.hasNext()) {
+            IntrospectedColumn columnTmp = (IntrospectedColumn) var7.next();
+            if (column == columnTmp) {
+                blobText += ",id = true";
+                break;
+            }
+        }
         String annotation = "@Column(name = \"" + columnName + "\",jdbcType = JdbcType." + column.getJdbcTypeName() + blobText + ")";
         field.addAnnotation(annotation);
         if (column.isIdentity()) {
@@ -58,14 +65,14 @@ public class FastAnnotationPlugin extends PluginAdapter {
 
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        topLevelClass.addImportedType("javax.persistence.*");
-        topLevelClass.addImportedType("org.apache.ibatis.type.JdbcType");
+        topLevelClass.addImportedType("org.lx.mybatis.annotation.Entity");
         topLevelClass.addImportedType("org.lx.mybatis.annotation.Column");
+        topLevelClass.addImportedType("org.apache.ibatis.type.JdbcType");
         String tableName = introspectedTable.getFullyQualifiedTableNameAtRuntime();
         if (StringUtility.stringContainsSpace(tableName)) {
             tableName = this.context.getBeginningDelimiter() + tableName + this.context.getEndingDelimiter();
         }
-        topLevelClass.addAnnotation("@Table(name = \"" + tableName + "\")");
+        topLevelClass.addAnnotation("@Entity(tableName = \"" + tableName + "\")");
         return super.modelBaseRecordClassGenerated(topLevelClass, introspectedTable);
     }
 
