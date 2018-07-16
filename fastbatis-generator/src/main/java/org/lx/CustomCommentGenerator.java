@@ -53,6 +53,13 @@ public class CustomCommentGenerator implements CommentGenerator {
     }
 
     public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        if (introspectedTable.getRemarks() != null && introspectedTable.getRemarks().trim().length() > 0) {
+            topLevelClass.addJavaDocLine("/**");
+            topLevelClass.addJavaDocLine(" * " + introspectedTable.getRemarks());
+            topLevelClass.addJavaDocLine(" * ");
+            topLevelClass.addJavaDocLine(" * " + introspectedTable.getFullyQualifiedTableNameAtRuntime());
+            topLevelClass.addJavaDocLine(" */");
+        }
     }
 
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {

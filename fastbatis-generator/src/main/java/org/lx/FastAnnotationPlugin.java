@@ -22,13 +22,13 @@ public class FastAnnotationPlugin extends PluginAdapter {
 
         Iterator var7 = introspectedTable.getPrimaryKeyColumns().iterator();
 
-        while (var7.hasNext()) {
-            IntrospectedColumn columnTmp = (IntrospectedColumn) var7.next();
-            if (column == columnTmp) {
-                field.addAnnotation("@Id");
-                break;
-            }
-        }
+//        while (var7.hasNext()) {
+//            IntrospectedColumn columnTmp = (IntrospectedColumn) var7.next();
+//            if (column == columnTmp) {
+//                field.addAnnotation("@Id");
+//                break;
+//            }
+//        }
 
         String columnName = column.getActualColumnName();
         if (StringUtility.stringContainsSpace(columnName) || introspectedTable.getTableConfiguration().isAllColumnDelimitingEnabled()) {
